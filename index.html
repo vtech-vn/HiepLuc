@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Dashboard - HIỆP LỰC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hl: {
+                            navy: '#113458',
+                            red: '#E21F25',
+                            lightgray: '#D1D5DB',
+                            bg: '#f4f6f8',
+                            darkblue: '#0B3061',
+                            lightblue: '#1B5299'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #f4f6f8; font-family: 'Roboto', sans-serif; }
+        
+        /* Premium Card Styling */
+        .card { 
+            background-color: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); 
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Metric Styling */
+        .metric-title { font-size: 13px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .metric-value { font-size: 28px; font-weight: 800; color: #113458; line-height: 1.2; }
+        .metric-change { font-size: 13px; margin-top: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; }
+        
+        .change-positive { background-color: #dcfce7; color: #166534; }
+        .change-negative { background-color: #fee2e2; color: #991b1b; }
+        .change-neutral { background-color: #f3f4f6; color: #4b5563; }
+
+        /* Chart Styling */
+        .chart-title { 
+            font-size: 15px; 
+            color: #113458; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            margin-bottom: 16px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 8px;
+        }
+        .chart-title i { color: #E21F25; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Loading Overlay */
+        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #E21F25; border-radius: 50%; width: 48px; height: 48px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Form Controls */
+        .form-control {
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #374151;
+            background-color: white;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #113458;
+            ring: 2px;
+            ring-color: rgba(17, 52, 88, 0.2);
+        }
+        
+        /* Highlight Card for Profit */
+        .card-profit {
+            background: linear-gradient(135deg, #113458 0%, #0B3061 100%);
+            color: white;
+            border: none;
+        }
+        .card-profit .metric-title { color: #9ca3af; }
+        .card-profit .metric-value { color: white; }
+        .card-profit .change-positive { background-color: rgba(22, 163, 74, 0.2); color: #4ade80; }
+        .card-profit .change-negative { background-color: rgba(220, 38, 38, 0.2); color: #f87171; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner mb-4"></div>
+        <div class="text-hl-navy font-bold text-xl tracking-wide">ĐANG TẢI DỮ LIỆU...</div>
+        <div class="text-gray-500 text-sm mt-2">Vui lòng chờ trong giây lát</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white border-b-4 border-hl-red shadow-sm sticky top-0 z-40">
+        <div class="max-w-[1600px] mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div id="company-logo-container" class="w-12 h-12 rounded bg-white flex items-center justify-center text-hl-navy font-black text-xl overflow-hidden shrink-0 border border-gray-200">
+                    HL
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-hl-navy leading-none tracking-tight">FINANCIAL DASHBOARD</h1>
+                    <p class="text-xs text-hl-red italic font-medium mt-1">Hiệp lực giá trị thực cho cuộc sống</p>
+                </div>
+            </div>
+            
+            <!-- Filters in Header -->
+            <div class="flex flex-wrap gap-3 items-center">
+                <div class="relative">
+                    <input type="text" id="daterange" class="form-control w-64 pl-10 cursor-pointer" readonly />
+                    <i class="fa-regular fa-calendar absolute left-4 top-3 text-hl-red pointer-events-none"></i>
+                </div>
+                <div class="relative">
+                    <select id="customer-filter" class="form-control w-48 appearance-none pl-10 cursor-pointer">
+                        <option value="">Tất cả Khách hàng</option>
+                    </select>
+                    <i class="fa-solid fa-users absolute left-4 top-3 text-gray-400 pointer-events-none"></i>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+                <div class="relative">
+                    <select id="allocation-filter" class="form-control w-48 appearance-none pl-10 cursor-pointer">
+                        <option value="">Tất cả Allocation</option>
+                    </select>
+                    <i class="fa-solid fa-layer-group absolute left-4 top-3 text-gray-400 pointer-events-none"></i>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-[1600px] w-full mx-auto px-6 py-8">
+        
+        <!-- Scorecards Row 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Doanh Thu -->
+            <div class="card relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-hl-navy opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="flex justify-between items-start">
+                    <div class="metric-title">Tổng Doanh Thu</div>
+                    <div class="w-8 h-8 rounded bg-blue-50 text-hl-lightblue flex items-center justify-center"><i class="fa-solid fa-coins"></i></div>
+                </div>
+                <div class="metric-value text-3xl mt-2" id="kpi-revenue">0</div>
+                <div class="flex items-center justify-between mt-4">
+                    <div id="kpi-revenue-change" class="metric-change change-neutral">-</div>
+                    <div class="text-xs text-gray-400">vs năm trước</div>
+                </div>
+            </div>
+
+            <!-- Chi Phí -->
+            <div class="card relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-orange-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="flex justify-between items-start">
+                    <div class="metric-title">Tổng Chi Phí</div>
+                    <div class="w-8 h-8 rounded bg-orange-50 text-orange-500 flex items-center justify-center"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                </div>
+                <div class="metric-value text-3xl mt-2" id="kpi-expense">0</div>
+                <div class="flex items-center justify-between mt-4">
+                    <div id="kpi-expense-change" class="metric-change change-neutral">-</div>
+                    <div class="text-xs text-gray-400">vs năm trước</div>
+                </div>
+            </div>
+
+            <!-- Lợi Nhuận -->
+            <div class="card relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="flex justify-between items-start">
+                    <div class="metric-title">Lợi Nhuận Thuần</div>
+                    <div class="w-8 h-8 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-chart-line"></i></div>
+                </div>
+                <div class="metric-value text-3xl mt-2" id="kpi-profit">0</div>
+                <div class="flex items-center justify-between mt-4">
+                    <div id="kpi-profit-change" class="metric-change change-neutral">-</div>
+                    <div class="text-xs text-gray-400">vs năm trước</div>
+                </div>
+            </div>
+
+             <!-- Tổng Tiền PO -->
+             <div class="card relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-purple-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="flex justify-between items-start">
+                    <div class="metric-title">Tổng Tiền PO</div>
+                    <div class="w-8 h-8 rounded bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-file-contract"></i></div>
+                </div>
+                <div class="metric-value text-3xl mt-2" id="kpi-po-amount">0</div>
+                <div class="flex items-center justify-between mt-4">
+                    <div id="kpi-po-amount-change" class="metric-change change-neutral">-</div>
+                    <div class="text-xs text-gray-400">vs năm trước</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scorecards Row 2 (Secondary Metrics) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card flex items-center p-4">
+                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-file-circle-check"></i></div>
+                <div class="flex-1">
+                    <div class="text-xs text-gray-500 font-semibold uppercase">Doanh Thu Có VAT</div>
+                    <div class="text-xl font-bold text-hl-navy" id="kpi-vat">0</div>
+                </div>
+                <div class="text-right">
+                    <div id="kpi-vat-change" class="text-sm font-medium">0%</div>
+                </div>
+            </div>
+
+            <div class="card flex items-center p-4">
+                <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+                <div class="flex-1">
+                    <div class="text-xs text-gray-500 font-semibold uppercase">Doanh Thu Chưa VAT</div>
+                    <div class="text-xl font-bold text-hl-navy" id="kpi-novat">0</div>
+                </div>
+                <div class="text-right">
+                    <div id="kpi-novat-change" class="text-sm font-medium">0%</div>
+                </div>
+            </div>
+
+            <div class="card flex items-center p-4">
+                <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-hashtag"></i></div>
+                <div class="flex-1">
+                    <div class="text-xs text-gray-500 font-semibold uppercase">Tổng Số lượng PO</div>
+                    <div class="text-xl font-bold text-hl-navy" id="kpi-po-count">0</div>
+                </div>
+                <div class="text-right">
+                    <div id="kpi-po-count-change" class="text-sm font-medium">0%</div>
+                </div>
+            </div>
+
+            <div class="card flex items-center p-4">
+                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div class="flex-1">
+                    <div class="text-xs text-gray-500 font-semibold uppercase">Cash Total</div>
+                    <div class="text-xl font-bold text-hl-navy" id="kpi-cash">0</div>
+                </div>
+                <div class="text-right">
+                    <div id="kpi-cash-change" class="text-sm font-medium">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid 1 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="card">
+                <div class="chart-title"><i class="fa-solid fa-chart-column"></i> MONTHLY SALES TREND</div>
+                <div class="relative h-72 w-full"><canvas id="chartTrend"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="chart-title"><i class="fa-solid fa-money-bill-wave text-emerald-500"></i> CASH TREND</div>
+                <div class="relative h-72 w-full"><canvas id="chartCashTrend"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Charts Grid 2 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="card lg:col-span-1">
+                <div class="chart-title"><i class="fa-solid fa-chart-pie"></i> SALES BY CUSTOMER</div>
+                <div class="relative h-64 w-full flex justify-center"><canvas id="chartSalesByCustomer"></canvas></div>
+            </div>
+            <div class="card lg:col-span-1">
+                <div class="chart-title"><i class="fa-solid fa-chart-bar"></i> SALES BY ALLOCATION</div>
+                <div class="relative h-64 w-full"><canvas id="chartSalesByAllocation"></canvas></div>
+            </div>
+            <div class="card lg:col-span-1">
+                <div class="chart-title"><i class="fa-solid fa-chart-pie text-orange-500"></i> EXPENSE BY ALLOCATE</div>
+                <div class="relative h-64 w-full flex justify-center"><canvas id="chartExpenseByAllocate"></canvas></div>
+            </div>
+            <div class="card lg:col-span-1">
+                <div class="chart-title"><i class="fa-solid fa-chart-pie text-purple-500"></i> PO COUNT BY CUSTOMER</div>
+                <div class="relative h-64 w-full flex justify-center"><canvas id="chartPoByCustomer"></canvas></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let db = {
+            Order_HD: [], Order_Line: [], AR_INV_HD: [], AR_INV_LINE: [], AP_INV_LINE: [], Customer: []
+        };
+        let charts = {};
+        
+        const state = {
+            startDate: moment().startOf('year'),
+            endDate: moment().endOf('year'),
+            customerId: '',
+            allocation: ''
+        };
+
+        // Premium Color Palette
+        const palette = {
+            primary: '#113458',    // Navy
+            secondary: '#E21F25',  // Red
+            accent1: '#1B5299',    // Light Blue
+            accent2: '#0B3061',    // Dark Blue
+            accent3: '#ED7679',    // Light Red
+            accent4: '#4b5563',    // Gray
+            accent5: '#0ea5e9',    // Sky
+            accent6: '#f59e0b',    // Amber
+            accent7: '#10b981',    // Emerald
+            accent8: '#8b5cf6'     // Violet
+        };
+        const chartColors = [palette.primary, palette.secondary, palette.accent1, palette.accent5, palette.accent6, palette.accent7, palette.accent8, palette.accent3, palette.accent4, palette.accent2];
+
+        // Format Utilities
+        const formatMoney = (n) => {
+            if (!n) return '0';
+            return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        };
+
+        const formatShortMoney = (n) => {
+            if (n >= 1e9) return (n / 1e9).toFixed(1) + ' Tỷ';
+            if (n >= 1e6) return (n / 1e6).toFixed(0) + ' Tr';
+            if (n >= 1e3) return (n / 1e3).toFixed(0) + ' K';
+            return n.toString();
+        };
+
+        const formatPercent = (n) => {
+            if (n > 0) return '<i class="fa-solid fa-arrow-trend-up"></i> ' + n.toFixed(1) + '%';
+            if (n < 0) return '<i class="fa-solid fa-arrow-trend-down"></i> ' + Math.abs(n).toFixed(1) + '%';
+            return '<i class="fa-solid fa-minus"></i> 0%';
+        };
+
+        const updateChangeUI = (elId, pct) => {
+            const el = document.getElementById(elId);
+            el.innerHTML = formatPercent(pct);
+            el.className = 'metric-change ' + (pct > 0 ? 'change-positive' : (pct < 0 ? 'change-negative' : 'change-neutral'));
+        };
+
+        // Initialize Application
+        $(document).ready(function() {
+            // Setup DateRangePicker with Vietnamese localization
+            $('#daterange').daterangepicker({
+                startDate: state.startDate,
+                endDate: state.endDate,
+                locale: { 
+                    format: 'DD/MM/YYYY',
+                    applyLabel: "Áp dụng",
+                    cancelLabel: "Hủy",
+                    customRangeLabel: "Tùy chọn",
+                    daysOfWeek: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+                    monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"]
+                },
+                ranges: {
+                   'Năm nay': [moment().startOf('year'), moment().endOf('year')],
+                   'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                   'Quý này': [moment().startOf('quarter'), moment().endOf('quarter')],
+                   'Năm trước': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
+                }
+            }, function(start, end) {
+                state.startDate = start;
+                state.endDate = end;
+                refreshDashboard();
+            });
+
+            $('#customer-filter, #allocation-filter').change(function() {
+                state.customerId = $('#customer-filter').val();
+                state.allocation = $('#allocation-filter').val();
+                refreshDashboard();
+            });
+
+            loadData();
+        });
+
+        // Setup Chart.js Defaults
+        Chart.defaults.font.family = "'Roboto', sans-serif";
+        Chart.defaults.color = '#4b5563';
+        Chart.defaults.scale.grid.color = '#f3f4f6';
+
+        function loadData() {
+            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec?api=dashboardData";
+
+            fetch(APPS_SCRIPT_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(res => {
+                    if (res.success) {
+                        db = res.data;
+                        setupFilters();
+                        refreshDashboard();
+                        $('#loading').fadeOut(300);
+                        
+                        // Đối với GitHub Pages, bạn có thể tự thay logo.png bằng thẻ <img src="logo.png">
+                    } else {
+                        alert("Lỗi tải dữ liệu: " + res.error);
+                        $('#loading').fadeOut(300);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    alert("Lỗi kết nối Server. Vui lòng kiểm tra lại đường dẫn hoặc kết nối mạng.");
+                    $('#loading').fadeOut(300);
+                });
+        }
+
+        function setupFilters() {
+            const custSelect = document.getElementById('customer-filter');
+            // Clear existing except first
+            while(custSelect.options.length > 1) custSelect.remove(1);
+            
+            // Sort customers alphabetically
+            const sortedCusts = [...db.Customer].sort((a,b) => (a.Customer_Name||'').localeCompare(b.Customer_Name||''));
+            
+            sortedCusts.forEach(c => {
+                if(c.Customer_ID) {
+                    const opt = document.createElement('option');
+                    opt.value = c.Customer_ID;
+                    opt.text = c.Short_Name || c.Customer_Name || c.Customer_ID;
+                    custSelect.appendChild(opt);
+                }
+            });
+
+            const allocSet = new Set();
+            db.Order_Line.forEach(r => { if(r.Allocate) allocSet.add(r.Allocate); });
+            const allocSelect = document.getElementById('allocation-filter');
+            while(allocSelect.options.length > 1) allocSelect.remove(1);
+            
+            Array.from(allocSet).sort().forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.text = a;
+                allocSelect.appendChild(opt);
+            });
+        }
+
+        // Logic Helpers
+        const parseDate = (d) => moment(d);
+        const inRange = (d, start, end) => d && moment(d).isBetween(start, end, 'day', '[]');
+
+        function calculateMetrics(isPreviousYear = false) {
+            const start = isPreviousYear ? moment(state.startDate).subtract(1, 'year') : state.startDate;
+            const end = isPreviousYear ? moment(state.endDate).subtract(1, 'year') : state.endDate;
+
+            const orderHdMap = {};
+            let validOrders = new Set(); 
+            
+            db.Order_HD.forEach(hd => {
+                const d = parseDate(hd.PO_Received_Date);
+                if (inRange(d, start, end)) {
+                    if (!state.customerId || hd.Customer_ID == state.customerId) {
+                        const oId = hd.Order_ID || hd.Order_Id;
+                        if (oId) {
+                            orderHdMap[oId] = hd;
+                            validOrders.add(oId);
+                        }
+                    }
+                }
+            });
+
+            let vatAmount = 0;
+            let cashAmount = 0;
+            let salesByCust = {}, monthlySales = {}, monthlyCash = {};
+
+            // VAT/Sales: filter by Date
+            db.AR_INV_HD.forEach(hd => {
+                const d = parseDate(hd.Date);
+                if (inRange(d, start, end)) {
+                    if (!state.customerId || hd.Customer_ID == state.customerId) {
+                        const amt = parseFloat(hd.Amount) || 0;
+                        vatAmount += amt;
+
+                        if (!isPreviousYear) {
+                            const custName = getCustomerName(hd.Customer_ID);
+                            salesByCust[custName] = (salesByCust[custName] || 0) + amt;
+                            const monthKey = moment(hd.Date).format('YYYY-MM');
+                            monthlySales[monthKey] = (monthlySales[monthKey] || 0) + amt;
+                        }
+                    }
+                }
+            });
+
+            // Cash: filter by Due_Date
+            db.AR_INV_HD.forEach(hd => {
+                const due = parseDate(hd.Due_Date);
+                if (inRange(due, start, end)) {
+                    if (!state.customerId || hd.Customer_ID == state.customerId) {
+                        const amt = parseFloat(hd.Amount) || 0;
+                        cashAmount += amt;
+
+                        if (!isPreviousYear) {
+                            const monthKey = moment(hd.Due_Date).format('YYYY-MM');
+                            monthlyCash[monthKey] = (monthlyCash[monthKey] || 0) + amt;
+                        }
+                    }
+                }
+            });
+
+            let poAmount = 0, novatAmount = 0;
+            let salesByAlloc = {};
+
+            db.Order_Line.forEach(line => {
+                if (state.allocation && line.Allocate !== state.allocation) return;
+                const amt = parseFloat(line.Amount) || 0;
+                const lineOId = line.Order_ID || line.Order_Id;
+                const hd = orderHdMap[lineOId];
+                
+                if (hd) {
+                    poAmount += amt;
+                    if(!isPreviousYear) {
+                        const alloc = line.Allocate || 'Khác';
+                        salesByAlloc[alloc] = (salesByAlloc[alloc] || 0) + amt;
+                    }
+                }
+
+                const rawStatus = line.Status || line.status || "";
+                const status = String(rawStatus).trim().toLowerCase();
+                let bDate = line.BBNT_Date ? parseDate(line.BBNT_Date) : null;
+                let checkDate = bDate && bDate.isValid() ? bDate : null;
+                let usedHd = null;
+                
+                if (!checkDate) {
+                    usedHd = db.Order_HD.find(h => (h.Order_ID || h.Order_Id) == lineOId);
+                    if (usedHd) checkDate = parseDate(usedHd.PO_Received_Date);
+                } else {
+                    usedHd = db.Order_HD.find(h => (h.Order_ID || h.Order_Id) == lineOId);
+                }
+
+                if (status === "đã gửi bbnt" && checkDate && inRange(checkDate, start, end)) {
+                    if (!state.customerId || (usedHd && usedHd.Customer_ID == state.customerId)) {
+                        novatAmount += amt;
+                    }
+                }
+            });
+
+            // AR_INV_LINE loop has been removed as per new logic
+
+            let expenseAmount = 0;
+            let expByAlloc = {};
+            db.AP_INV_LINE.forEach(line => {
+                const d = parseDate(line.Date);
+                if (inRange(d, start, end)) {
+                    if (state.allocation && line.Expense_Group !== state.allocation) return;
+                    const amt = parseFloat(line.Amount) || 0;
+                    expenseAmount += amt;
+
+                    if (!isPreviousYear) {
+                        const grp = line.Expense_Group || 'Khác';
+                        expByAlloc[grp] = (expByAlloc[grp] || 0) + amt;
+                    }
+                }
+            });
+
+            let poCountByCust = {};
+            if (!isPreviousYear) {
+                validOrders.forEach(oid => {
+                    const hd = db.Order_HD.find(h => (h.Order_ID || h.Order_Id) == oid);
+                    if(hd) {
+                        const custName = getCustomerName(hd.Customer_ID);
+                        poCountByCust[custName] = (poCountByCust[custName] || 0) + 1;
+                    }
+                });
+            }
+
+            const revenue = vatAmount + novatAmount;
+            const profit = revenue - expenseAmount;
+
+            return {
+                poCount: validOrders.size, poAmount, vatAmount, novatAmount, revenue, expenseAmount, profit, cashAmount,
+                salesByAlloc, salesByCust, poCountByCust, expByAlloc, monthlySales, monthlyCash
+            };
+        }
+
+        function getCustomerName(id) {
+            const c = db.Customer.find(x => x.Customer_ID == id);
+            return c ? (c.Short_Name || c.Customer_Name || id) : id;
+        }
+
+        function calcChange(curr, prev) {
+            if (prev === 0) return curr > 0 ? 100 : (curr < 0 ? -100 : 0);
+            return ((curr - prev) / prev) * 100;
+        }
+
+        function refreshDashboard() {
+            const current = calculateMetrics(false);
+            const prev = calculateMetrics(true);
+
+            // Update UI Scorecards
+            document.getElementById('kpi-po-count').innerText = formatMoney(current.poCount);
+            document.getElementById('kpi-po-amount').innerText = formatMoney(current.poAmount);
+            document.getElementById('kpi-revenue').innerText = formatMoney(current.revenue);
+            document.getElementById('kpi-vat').innerText = formatMoney(current.vatAmount);
+            document.getElementById('kpi-novat').innerText = formatMoney(current.novatAmount);
+            document.getElementById('kpi-cash').innerText = formatMoney(current.cashAmount);
+            document.getElementById('kpi-expense').innerText = formatMoney(current.expenseAmount);
+            document.getElementById('kpi-profit').innerText = formatMoney(current.profit);
+
+            updateChangeUI('kpi-po-count-change', calcChange(current.poCount, prev.poCount));
+            updateChangeUI('kpi-po-amount-change', calcChange(current.poAmount, prev.poAmount));
+            updateChangeUI('kpi-revenue-change', calcChange(current.revenue, prev.revenue));
+            updateChangeUI('kpi-vat-change', calcChange(current.vatAmount, prev.vatAmount));
+            updateChangeUI('kpi-novat-change', calcChange(current.novatAmount, prev.novatAmount));
+            updateChangeUI('kpi-cash-change', calcChange(current.cashAmount, prev.cashAmount));
+            updateChangeUI('kpi-expense-change', calcChange(current.expenseAmount, prev.expenseAmount)); // For expenses, negative is good, but mathematically it's just change
+            updateChangeUI('kpi-profit-change', calcChange(current.profit, prev.profit));
+
+            // Draw Charts
+            drawDoughnutChart('chartSalesByCustomer', current.salesByCust);
+            drawBarChart('chartSalesByAllocation', current.salesByAlloc, 'y');
+            drawDoughnutChart('chartPoByCustomer', current.poCountByCust);
+            drawDoughnutChart('chartExpenseByAllocate', current.expByAlloc);
+            drawTrendChart('chartTrend', current.monthlySales);
+            drawTrendChart('chartCashTrend', current.monthlyCash);
+        }
+
+        function destroyChart(id) {
+            if (charts[id]) charts[id].destroy();
+        }
+
+        function drawDoughnutChart(id, dataObj) {
+            destroyChart(id);
+            const labels = Object.keys(dataObj).sort((a,b) => dataObj[b]-dataObj[a]).slice(0, 8);
+            const data = labels.map(l => dataObj[l]);
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: chartColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: 10 },
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, usePointStyle: true, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    if (context.raw !== null) {
+                                        // Auto detect if it's count (small number) or currency
+                                        label += context.raw < 1000 ? formatMoney(context.raw) : formatMoney(context.raw) + ' đ';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        function drawBarChart(id, dataObj, indexAxis = 'x') {
+            destroyChart(id);
+            const labels = Object.keys(dataObj).sort((a,b) => dataObj[b]-dataObj[a]).slice(0, 8);
+            const data = labels.map(l => dataObj[l]);
+            const ctx = document.getElementById(id).getContext('2d');
+            
+            // Create gradient
+            let gradient = ctx.createLinearGradient(0, 0, indexAxis === 'y' ? 400 : 0, indexAxis === 'x' ? 400 : 0);
+            gradient.addColorStop(0, palette.primary);
+            gradient.addColorStop(1, palette.accent1);
+
+            charts[id] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: gradient,
+                        borderRadius: 4,
+                        barThickness: 'flex',
+                        maxBarThickness: 32
+                    }]
+                },
+                options: {
+                    indexAxis: indexAxis,
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 10, right: 20 } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context) { return formatMoney(context.raw) + ' đ'; } } }
+                    },
+                    scales: {
+                        x: { 
+                            grid: { display: false, drawBorder: false },
+                            ticks: { callback: function(val) { return indexAxis === 'x' ? this.getLabelForValue(val) : formatShortMoney(val); }, font: {size: 11} }
+                        },
+                        y: { 
+                            grid: { borderDash: [4, 4], color: '#e5e7eb', drawBorder: false },
+                            ticks: { callback: function(val) { return indexAxis === 'y' ? this.getLabelForValue(val) : formatShortMoney(val); }, font: {size: 11} }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawTrendChart(id, dataObj) {
+            destroyChart(id);
+            // Sort by month (YYYY-MM)
+            const sortedKeys = Object.keys(dataObj).sort();
+            const labels = sortedKeys.map(k => moment(k, 'YYYY-MM').format('MM/YYYY'));
+            const data = sortedKeys.map(k => dataObj[k]);
+
+            const ctx = document.getElementById(id).getContext('2d');
+            
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, palette.primary);
+            gradient.addColorStop(1, 'rgba(27, 82, 153, 0.5)'); // lighter blue transparent
+
+            charts[id] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: data,
+                        backgroundColor: gradient,
+                        borderRadius: {topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0},
+                        maxBarThickness: 50
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 20 } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 52, 88, 0.9)',
+                            titleFont: { size: 13 },
+                            bodyFont: { size: 14, weight: 'bold' },
+                            padding: 12,
+                            callbacks: { label: function(context) { return formatMoney(context.raw) + ' VNĐ'; } }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { borderDash: [4, 4], color: '#e5e7eb', drawBorder: false },
+                            ticks: { callback: function(val) { return formatShortMoney(val); }, padding: 10, font: { weight: '500' } }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { font: { weight: '500', color: '#6b7280' } }
+                        }
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
