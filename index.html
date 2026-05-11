@@ -115,6 +115,34 @@
         .card-profit .metric-value { color: white; }
         .card-profit .change-positive { background-color: rgba(22, 163, 74, 0.2); color: #4ade80; }
         .card-profit .change-negative { background-color: rgba(220, 38, 38, 0.2); color: #f87171; }
+
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: #f8fafc;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-card img {
+            width: 80px;
+            margin-bottom: 24px;
+        }
+        .otp-input-group {
+            display: none;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -123,6 +151,30 @@
         <div class="spinner mb-4"></div>
         <div class="text-hl-navy font-bold text-xl tracking-wide">ĐANG TẢI DỮ LIỆU...</div>
         <div class="text-gray-500 text-sm mt-2">Vui lòng chờ trong giây lát</div>
+    </div>
+
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-card">
+            <img src="HiepLuc_logo.jpg" alt="Logo">
+            <h2 class="text-2xl font-black text-hl-navy mb-2 uppercase">Xác thực truy cập</h2>
+            <p class="text-gray-500 text-sm mb-8 italic">Chỉ dành cho nhân viên được cấp quyền</p>
+            
+            <div id="email-group">
+                <div class="text-left mb-1 text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Email của bạn</div>
+                <input type="email" id="login-email" class="form-control w-full mb-4" placeholder="name@gmail.com">
+                <button onclick="requestOtp()" id="btn-request" class="w-full bg-hl-navy text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">NHẬN MÃ XÁC THỰC</button>
+            </div>
+
+            <div id="otp-group" class="otp-input-group">
+                <p class="text-sm text-emerald-600 mb-4 bg-emerald-50 py-2 rounded">Mã OTP đã được gửi đến email của bạn.</p>
+                <div class="text-left mb-1 text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Nhập mã OTP</div>
+                <input type="text" id="login-otp" class="form-control w-full mb-4 text-center tracking-widest text-xl font-black" placeholder="------" maxlength="6">
+                <button onclick="verifyOtp()" id="btn-verify" class="w-full bg-hl-red text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">ĐĂNG NHẬP</button>
+                <button onclick="showEmailGroup()" class="text-xs text-gray-400 mt-4 hover:text-hl-navy">Dùng email khác</button>
+            </div>
+            
+            <div id="login-error" class="text-red-500 text-xs mt-4 font-medium hidden"></div>
+        </div>
     </div>
 
     <!-- Header -->
@@ -381,31 +433,95 @@
         Chart.defaults.scale.grid.color = '#f3f4f6';
 
         function loadData() {
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec?api=dashboardData";
+            const session = localStorage.getItem('vtech_session');
+            if (!session) {
+                $('#loading').fadeOut(200);
+                $('#login-overlay').css('display', 'flex');
+                return;
+            }
+
+            const APPS_SCRIPT_URL = `https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec?api=dashboardData&session=${session}`;
 
             fetch(APPS_SCRIPT_URL)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(res => {
                     if (res.success) {
                         db = res.data;
                         setupFilters();
                         refreshDashboard();
                         $('#loading').fadeOut(300);
-                        
-                        // Đối với GitHub Pages, bạn có thể tự thay logo.png bằng thẻ <img src="logo.png">
+                        $('#login-overlay').hide();
                     } else {
-                        alert("Lỗi tải dữ liệu: " + res.error);
-                        $('#loading').fadeOut(300);
+                        // Session expired or invalid
+                        localStorage.removeItem('vtech_session');
+                        $('#loading').fadeOut(200);
+                        $('#login-overlay').css('display', 'flex');
+                        if(res.error) showLoginError(res.error);
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    alert("Lỗi kết nối Server. Vui lòng kiểm tra lại đường dẫn hoặc kết nối mạng.");
+                    alert("Lỗi kết nối Server. Vui lòng kiểm tra lại mạng.");
                     $('#loading').fadeOut(300);
                 });
+        }
+
+        function requestOtp() {
+            const email = $('#login-email').val().trim();
+            if(!email) return showLoginError('Vui lòng nhập email');
+            
+            $('#btn-request').prop('disabled', true).text('ĐANG GỬI...');
+            $('#login-error').hide();
+
+            const url = `https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec?api=request_otp&email=${encodeURIComponent(email)}`;
+            
+            fetch(url)
+                .then(r => r.json())
+                .then(res => {
+                    if(res.success) {
+                        $('#email-group').hide();
+                        $('#otp-group').show();
+                    } else {
+                        showLoginError(res.error || 'Lỗi không xác định');
+                    }
+                })
+                .catch(e => showLoginError('Lỗi kết nối'))
+                .finally(() => $('#btn-request').prop('disabled', false).text('NHẬN MÃ XÁC THỰC'));
+        }
+
+        function verifyOtp() {
+            const email = $('#login-email').val().trim();
+            const otp = $('#login-otp').val().trim();
+            if(!otp) return showLoginError('Vui lòng nhập mã OTP');
+
+            $('#btn-verify').prop('disabled', true).text('ĐANG XÁC THỰC...');
+            $('#login-error').hide();
+
+            const url = `https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec?api=verify_otp&email=${encodeURIComponent(email)}&otp=${otp}`;
+            
+            fetch(url)
+                .then(r => r.json())
+                .then(res => {
+                    if(res.success) {
+                        localStorage.setItem('vtech_session', res.session);
+                        $('#loading').show();
+                        loadData();
+                    } else {
+                        showLoginError(res.error || 'Mã OTP không đúng');
+                    }
+                })
+                .catch(e => showLoginError('Lỗi kết nối'))
+                .finally(() => $('#btn-verify').prop('disabled', false).text('ĐĂNG NHẬP'));
+        }
+
+        function showLoginError(msg) {
+            $('#login-error').text(msg).show();
+        }
+
+        function showEmailGroup() {
+            $('#otp-group').hide();
+            $('#email-group').show();
+            $('#login-error').hide();
         }
 
         function setupFilters() {
