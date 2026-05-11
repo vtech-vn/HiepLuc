@@ -165,108 +165,96 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-[1600px] w-full mx-auto px-6 py-8">
         
-        <!-- Scorecards Row 1 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <!-- Doanh Thu -->
-            <div class="card relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-16 h-16 bg-hl-navy opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                <div class="flex justify-between items-start">
-                    <div class="metric-title">Tổng Doanh Thu</div>
-                    <div class="w-8 h-8 rounded bg-blue-50 text-hl-lightblue flex items-center justify-center"><i class="fa-solid fa-coins"></i></div>
-                </div>
-                <div class="metric-value text-3xl mt-2" id="kpi-revenue">0</div>
-                <div class="flex items-center justify-between mt-4">
-                    <div id="kpi-revenue-change" class="metric-change change-neutral">-</div>
-                    <div class="text-xs text-gray-400">vs năm trước</div>
-                </div>
-            </div>
-
-            <!-- Chi Phí -->
-            <div class="card relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-16 h-16 bg-orange-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                <div class="flex justify-between items-start">
-                    <div class="metric-title">Tổng Chi Phí</div>
-                    <div class="w-8 h-8 rounded bg-orange-50 text-orange-500 flex items-center justify-center"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                </div>
-                <div class="metric-value text-3xl mt-2" id="kpi-expense">0</div>
-                <div class="flex items-center justify-between mt-4">
-                    <div id="kpi-expense-change" class="metric-change change-neutral">-</div>
-                    <div class="text-xs text-gray-400">vs năm trước</div>
-                </div>
-            </div>
-
-            <!-- Lợi Nhuận -->
-            <div class="card relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                <div class="flex justify-between items-start">
-                    <div class="metric-title">Lợi Nhuận Thuần</div>
-                    <div class="w-8 h-8 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-chart-line"></i></div>
-                </div>
-                <div class="metric-value text-3xl mt-2" id="kpi-profit">0</div>
-                <div class="flex items-center justify-between mt-4">
-                    <div id="kpi-profit-change" class="metric-change change-neutral">-</div>
-                    <div class="text-xs text-gray-400">vs năm trước</div>
-                </div>
-            </div>
-
-             <!-- Tổng Tiền PO -->
-             <div class="card relative overflow-hidden group">
+        <!-- Main Scorecards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+            <!-- PO Section -->
+            <div class="card relative overflow-hidden group flex flex-col justify-between">
                 <div class="absolute top-0 right-0 w-16 h-16 bg-purple-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                <div class="flex justify-between items-start">
-                    <div class="metric-title">Tổng Tiền PO</div>
-                    <div class="w-8 h-8 rounded bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-file-contract"></i></div>
+                <div>
+                    <div class="flex justify-between items-start">
+                        <div class="metric-title">Tổng Tiền PO</div>
+                        <div class="w-8 h-8 rounded bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-file-contract"></i></div>
+                    </div>
+                    <div class="metric-value text-3xl mt-2 text-purple-700" id="kpi-po-amount">0</div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div id="kpi-po-amount-change" class="metric-change change-neutral">-</div>
+                    </div>
                 </div>
-                <div class="metric-value text-3xl mt-2" id="kpi-po-amount">0</div>
-                <div class="flex items-center justify-between mt-4">
-                    <div id="kpi-po-amount-change" class="metric-change change-neutral">-</div>
-                    <div class="text-xs text-gray-400">vs năm trước</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Scorecards Row 2 (Secondary Metrics) -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="card flex items-center p-4">
-                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-file-circle-check"></i></div>
-                <div class="flex-1">
-                    <div class="text-xs text-gray-500 font-semibold uppercase">Doanh Thu Có VAT</div>
-                    <div class="text-xl font-bold text-hl-navy" id="kpi-vat">0</div>
-                </div>
-                <div class="text-right">
-                    <div id="kpi-vat-change" class="text-sm font-medium">0%</div>
+                <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-end">
+                    <div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Số lượng PO</div>
+                        <div class="text-sm font-bold text-gray-700" id="kpi-po-count">0</div>
+                    </div>
+                    <div id="kpi-po-count-change" class="text-xs font-medium">0%</div>
                 </div>
             </div>
 
-            <div class="card flex items-center p-4">
-                <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-file-circle-exclamation"></i></div>
-                <div class="flex-1">
-                    <div class="text-xs text-gray-500 font-semibold uppercase">Doanh Thu Chưa VAT</div>
-                    <div class="text-xl font-bold text-hl-navy" id="kpi-novat">0</div>
+            <!-- Revenue Section -->
+            <div class="card relative overflow-hidden group flex flex-col justify-between">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-blue-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div>
+                    <div class="flex justify-between items-start">
+                        <div class="metric-title">Tổng Doanh Thu</div>
+                        <div class="w-8 h-8 rounded bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-coins"></i></div>
+                    </div>
+                    <div class="metric-value text-3xl mt-2 text-blue-700" id="kpi-revenue">0</div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div id="kpi-revenue-change" class="metric-change change-neutral">-</div>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <div id="kpi-novat-change" class="text-sm font-medium">0%</div>
+                <div class="mt-4 pt-3 border-t border-gray-100 grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Có VAT</div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-bold text-gray-700" id="kpi-vat">0</span>
+                            <span id="kpi-vat-change" class="text-[10px] font-medium text-gray-500 ml-1"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Chưa VAT</div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-bold text-gray-700" id="kpi-novat">0</span>
+                            <span id="kpi-novat-change" class="text-[10px] font-medium text-gray-500 ml-1"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="card flex items-center p-4">
-                <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-hashtag"></i></div>
-                <div class="flex-1">
-                    <div class="text-xs text-gray-500 font-semibold uppercase">Tổng Số lượng PO</div>
-                    <div class="text-xl font-bold text-hl-navy" id="kpi-po-count">0</div>
+            <!-- Expense Section -->
+            <div class="card relative overflow-hidden group flex flex-col justify-between">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-orange-500 opacity-5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div>
+                    <div class="flex justify-between items-start">
+                        <div class="metric-title">Tổng Chi Phí</div>
+                        <div class="w-8 h-8 rounded bg-orange-50 text-orange-500 flex items-center justify-center"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    </div>
+                    <div class="metric-value text-3xl mt-2 text-orange-600" id="kpi-expense">0</div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div id="kpi-expense-change" class="metric-change change-neutral">-</div>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <div id="kpi-po-count-change" class="text-sm font-medium">0%</div>
+                <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-end">
+                    <div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Cash Total</div>
+                        <div class="text-sm font-bold text-emerald-600" id="kpi-cash">0</div>
+                    </div>
+                    <div id="kpi-cash-change" class="text-xs font-medium">0%</div>
                 </div>
             </div>
 
-            <div class="card flex items-center p-4">
-                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl mr-4"><i class="fa-solid fa-money-bill-wave"></i></div>
-                <div class="flex-1">
-                    <div class="text-xs text-gray-500 font-semibold uppercase">Cash Total</div>
-                    <div class="text-xl font-bold text-hl-navy" id="kpi-cash">0</div>
+            <!-- Profit Section -->
+            <div class="card card-profit relative overflow-hidden group flex flex-col justify-center">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                <div class="absolute bottom-0 left-0 w-16 h-16 bg-white opacity-5 rounded-tr-full transition-transform group-hover:scale-110"></div>
+                <div class="flex justify-between items-start relative z-10">
+                    <div class="metric-title text-gray-300">Lợi Nhuận Thuần</div>
+                    <div class="w-8 h-8 rounded bg-white/10 text-white flex items-center justify-center backdrop-blur-sm"><i class="fa-solid fa-chart-line"></i></div>
                 </div>
-                <div class="text-right">
-                    <div id="kpi-cash-change" class="text-sm font-medium">0%</div>
+                <div class="metric-value text-4xl mt-3 text-white font-black relative z-10" id="kpi-profit">0</div>
+                <div class="flex items-center justify-between mt-4 relative z-10">
+                    <div id="kpi-profit-change" class="metric-change change-neutral">-</div>
+                    <div class="text-xs text-blue-200">vs năm trước</div>
                 </div>
             </div>
         </div>
@@ -290,8 +278,8 @@
                 <div class="relative h-64 w-full flex justify-center"><canvas id="chartSalesByCustomer"></canvas></div>
             </div>
             <div class="card lg:col-span-1">
-                <div class="chart-title"><i class="fa-solid fa-chart-bar"></i> SALES BY ALLOCATION</div>
-                <div class="relative h-64 w-full"><canvas id="chartSalesByAllocation"></canvas></div>
+                <div class="chart-title"><i class="fa-solid fa-chart-bar"></i> EXPENSE BY ALLOCATION</div>
+                <div class="relative h-64 w-full"><canvas id="chartExpenseByAllocation"></canvas></div>
             </div>
             <div class="card lg:col-span-1">
                 <div class="chart-title"><i class="fa-solid fa-chart-pie text-orange-500"></i> EXPENSE BY ALLOCATE</div>
@@ -628,7 +616,7 @@
 
             // Draw Charts
             drawDoughnutChart('chartSalesByCustomer', current.salesByCust);
-            drawBarChart('chartSalesByAllocation', current.salesByAlloc, 'y');
+            drawBarChart('chartExpenseByAllocation', current.expByAlloc, 'y');
             drawDoughnutChart('chartPoByCustomer', current.poCountByCust);
             drawDoughnutChart('chartExpenseByAllocate', current.expByAlloc);
             drawTrendChart('chartTrend', current.monthlySales);
