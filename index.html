@@ -208,14 +208,12 @@
                         <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Có VAT</div>
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-bold text-gray-700" id="kpi-vat">0</span>
-                            <span id="kpi-vat-change" class="text-[10px] font-medium text-gray-500 ml-1"></span>
                         </div>
                     </div>
                     <div>
                         <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Chưa VAT</div>
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-bold text-gray-700" id="kpi-novat">0</span>
-                            <span id="kpi-novat-change" class="text-[10px] font-medium text-gray-500 ml-1"></span>
                         </div>
                     </div>
                 </div>
@@ -272,20 +270,16 @@
         </div>
 
         <!-- Charts Grid 2 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div class="card lg:col-span-1">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="card">
                 <div class="chart-title"><i class="fa-solid fa-chart-pie"></i> SALES BY CUSTOMER</div>
                 <div class="relative h-64 w-full flex justify-center"><canvas id="chartSalesByCustomer"></canvas></div>
             </div>
-            <div class="card lg:col-span-1">
-                <div class="chart-title"><i class="fa-solid fa-chart-bar"></i> EXPENSE BY ALLOCATION</div>
-                <div class="relative h-64 w-full"><canvas id="chartExpenseByAllocation"></canvas></div>
-            </div>
-            <div class="card lg:col-span-1">
+            <div class="card">
                 <div class="chart-title"><i class="fa-solid fa-chart-pie text-orange-500"></i> EXPENSE BY ALLOCATE</div>
                 <div class="relative h-64 w-full flex justify-center"><canvas id="chartExpenseByAllocate"></canvas></div>
             </div>
-            <div class="card lg:col-span-1">
+            <div class="card">
                 <div class="chart-title"><i class="fa-solid fa-chart-pie text-purple-500"></i> PO COUNT BY CUSTOMER</div>
                 <div class="relative h-64 w-full flex justify-center"><canvas id="chartPoByCustomer"></canvas></div>
             </div>
@@ -432,7 +426,7 @@
             });
 
             const allocSet = new Set();
-            db.Order_Line.forEach(r => { if(r.Allocate) allocSet.add(r.Allocate); });
+            db.AP_INV_LINE.forEach(r => { if(r.Expense_Group) allocSet.add(r.Expense_Group); });
             const allocSelect = document.getElementById('allocation-filter');
             while(allocSelect.options.length > 1) allocSelect.remove(1);
             
@@ -510,7 +504,6 @@
             let salesByAlloc = {};
 
             db.Order_Line.forEach(line => {
-                if (state.allocation && line.Allocate !== state.allocation) return;
                 const amt = parseFloat(line.Amount) || 0;
                 const lineOId = line.Order_ID || line.Order_Id;
                 const hd = orderHdMap[lineOId];
@@ -542,8 +535,6 @@
                     }
                 }
             });
-
-            // AR_INV_LINE loop has been removed as per new logic
 
             let expenseAmount = 0;
             let expByAlloc = {};
@@ -608,15 +599,12 @@
             updateChangeUI('kpi-po-count-change', calcChange(current.poCount, prev.poCount));
             updateChangeUI('kpi-po-amount-change', calcChange(current.poAmount, prev.poAmount));
             updateChangeUI('kpi-revenue-change', calcChange(current.revenue, prev.revenue));
-            updateChangeUI('kpi-vat-change', calcChange(current.vatAmount, prev.vatAmount));
-            updateChangeUI('kpi-novat-change', calcChange(current.novatAmount, prev.novatAmount));
             updateChangeUI('kpi-cash-change', calcChange(current.cashAmount, prev.cashAmount));
-            updateChangeUI('kpi-expense-change', calcChange(current.expenseAmount, prev.expenseAmount)); // For expenses, negative is good, but mathematically it's just change
+            updateChangeUI('kpi-expense-change', calcChange(current.expenseAmount, prev.expenseAmount));
             updateChangeUI('kpi-profit-change', calcChange(current.profit, prev.profit));
 
             // Draw Charts
             drawDoughnutChart('chartSalesByCustomer', current.salesByCust);
-            drawBarChart('chartExpenseByAllocation', current.expByAlloc, 'y');
             drawDoughnutChart('chartPoByCustomer', current.poCountByCust);
             drawDoughnutChart('chartExpenseByAllocate', current.expByAlloc);
             drawTrendChart('chartTrend', current.monthlySales);
