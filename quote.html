@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Giá - HIỆP LỰC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #525659; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .export-toolbar { position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
+        .export-toolbar button { background: #E21F25; color: #fff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .export-toolbar button:hover { background: #b0151a; transform: translateY(-2px); }
+        @media print { 
+            @page { size: A4 portrait; margin: 0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .export-toolbar { display: none !important; } 
+            html, body { width: 210mm; }
+            body { background: transparent; padding: 0; margin: 0; } 
+            .page { box-shadow: none; min-height: auto; margin: 0; width: 210mm; zoom: 0.96; transform-origin: top left; } 
+            .content-wrap { padding-bottom: 6px; }
+            .unified-footer, .page-meta, #pdf-footer .avoid-break { page-break-inside: auto !important; break-inside: auto !important; }
+            /* Ẩn dynamic spacer khi in máy vì browser tự chia trang */
+            #dynamic-spacer { display: none !important; }
+        }
+        
+        #loader { display: none; margin-left: 10px; font-size: 14px; color: #666; background: white; padding: 5px 10px; border-radius: 4px; }
+
+        /* Bỏ max-width: 100% để bản in luôn đủ chiều rộng 790px, tránh lỗi lề phải lớn */
+        .page { width: 790px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; display: flex; flex-direction: column; color: #333; overflow: hidden; margin: 0 auto; }
+        .content-wrap { padding: 0 25px 10px 25px; }
+
+        .header { display: flex; justify-content: space-between; align-items: stretch; position: relative; border-bottom: 4px solid #E21F25; padding-bottom: 0px; margin-bottom: 12px; background: #fff; min-height: 75px; }
+        .header-left { display: flex; gap: 12px; align-items: center; padding: 10px 0 8px 25px; position: relative; z-index: 2; }
+        .header-text-container { display: flex; flex-direction: column; align-items: center; }
+        .h-line-1 { font-size: 11px; font-weight: 700; color: #113458; margin-bottom: 1px; }
+        .h-line-2 { font-size: 22px; font-weight: 900; color: #113458; letter-spacing: 0px; margin-bottom: 1px; line-height: 1; }
+        .h-line-3 { font-size: 11px; font-style: italic; color: #E21F25; font-weight: 500; }
+
+        .header-graphic { position: absolute; top: 0; right: 0; bottom: 0; width: 320px; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; padding-right: 25px; overflow: hidden; }
+        .header-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; }
+        .h-text-1 { font-size: 28px; font-weight: 700; margin-bottom: 1px; color: white; position: relative; z-index: 2; }
+        .h-text-2 { font-size: 13px; font-style: italic; font-weight: 300; color: white; position: relative; z-index: 2; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .customer-box { border: 1px solid #D1D5DB; border-radius: 8px; padding: 20px 14px 10px 14px; position: relative; height: 100%; }
+        .box-badge { position: absolute; top: -1px; left: -1px; background-color: #113458; color: white; padding: 4px 14px; border-radius: 8px 16px 16px 0; font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .box-badge.red { background-color: #E21F25; }
+        .customer-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+        .customer-table td { padding: 5px 0; }
+        .customer-table td:first-child { font-weight: 700; width: 85px; color: #113458; }
+        .email-text { color: #1B5299; text-decoration: none; }
+
+        .meta-box { border: 1px solid #D1D5DB; border-radius: 8px; overflow: hidden; height: 100%; }
+        .meta-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+        .meta-table td { padding: 4px 8px; border-bottom: 1px solid #D1D5DB; }
+        .meta-table tr:last-child td { border-bottom: none; }
+        .meta-table td:first-child { border-right: 1px solid #D1D5DB; color: #113458; font-weight: 500; width: 140px; white-space: nowrap; }
+        .meta-icon { width: 14px; text-align: center; margin-right: 5px; }
+
+        .quote-banner { display: flex; border: 1px solid #D1D5DB; border-radius: 8px; margin-top: 10px; overflow: hidden; align-items: stretch; font-size: 14px; }
+        .quote-banner-icon { background-color: #E21F25; width: 44px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+        .quote-banner-title { padding: 10px 18px; font-weight: 700; color: #113458; border-right: 1px solid #D1D5DB; display: flex; align-items: center; font-size: 16px; }
+        .quote-banner-desc { padding: 10px 18px; font-weight: 700; flex: 1; display: flex; align-items: center; }
+
+        .data-table-container { margin-top: 10px; border-radius: 4px; overflow: hidden; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+        .data-table th { background-color: #113458; color: white; padding: 7px 6px; border: 1px solid #D1D5DB; font-weight: 700; }
+        .data-table td { padding: 8px 6px; border: 1px solid #D1D5DB; color: #333; }
+        .data-table tr:nth-child(even) { background-color: #FAFAFB; }
+        .data-table th:nth-child(2), .data-table td:nth-child(2) { text-align: left; padding-left: 12px; }
+        .data-table td:nth-child(5), .data-table td:nth-child(6) { text-align: right; padding-right: 10px; }
+
+        .bottom-grid { display: grid; grid-template-columns: 1fr 360px; gap: 8px 12px; margin-top: 8px; align-items: stretch; }
+        .note-box { border: 1px solid #D1D5DB; border-radius: 8px; padding: 20px 12px 8px; position: relative; }
+        .note-text-italic { font-style: italic; line-height: 1.4; font-size: 12px; }
+
+        .totals-box { border-radius: 8px; overflow: hidden; border: 1px solid #D1D5DB; }
+        .totals-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .totals-table td { padding: 6px 10px; border-bottom: 1px solid #D1D5DB; }
+        .totals-table td:last-child { border-left: 1px solid #D1D5DB; text-align: right; font-weight: 700; }
+        .totals-table tr:last-child { background-color: #E21F25; color: white; border-bottom: none; }
+        .totals-table tr:last-child td { font-size: 14px; border-bottom: none; }
+        .totals-table tr:last-child td:first-child { font-weight: 700; }
+        .totals-table tr:last-child td:last-child { font-size: 16px; border-left: 1px solid #ED7679; }
+
+        .signature-box { margin-top: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #D1D5DB; }
+        .signature-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .signature-table th { padding: 4px 8px; text-align: center; border-bottom: 1px solid #D1D5DB; border-right: 1px solid #D1D5DB; font-weight: 400; font-size: 13px; font-family: serif; width: 35%; }
+        .signature-table td { height: 30px; text-align: center; vertical-align: middle; border-bottom: 1px solid #D1D5DB; }
+        .signature-table tr:last-child th, .signature-table tr:last-child td { border-bottom: none; }
+
+        .avoid-break { page-break-inside: avoid; break-inside: avoid; display: block; }
+        tr { page-break-inside: avoid; break-inside: avoid; }
+
+        .unified-footer { background: linear-gradient(135deg, #0B3061 0%, #113458 100%); color: white; padding: 10px 20px; display: flex; gap: 14px; align-items: center; margin-top: 8px; page-break-inside: avoid; break-inside: avoid; border-radius: 6px 6px 0 0; }
+        .qr-placeholder { background-color: white; padding: 4px; border-radius: 5px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        .footer-right { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .footer-thankyou { display: flex; align-items: center; gap: 6px; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.15); white-space: nowrap; }
+        .footer-thankyou-icon { background-color: #E21F25; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; flex-shrink: 0; }
+        .footer-thankyou-text { font-weight: 700; font-size: 10.5px; color: #FFD700; white-space: nowrap; flex-shrink: 0; }
+        .footer-contact-row { display: flex; align-items: center; gap: 8px; font-size: 10.5px; color: rgba(255,255,255,0.85); white-space: nowrap; margin-left: auto; }
+        .footer-contact-row span { display: flex; align-items: center; gap: 4px; }
+        .footer-contact-row .sep { color: rgba(255,255,255,0.3); font-weight: normal; }
+        .footer-address { font-size: 10.5px; line-height: 1.4; color: rgba(255,255,255,0.8); }
+        .footer-address strong { color: white; font-weight: 700; }
+        .footer-address i { color: #E21F25; margin-right: 4px; }
+        .page-meta { display: flex; justify-content: space-between; padding: 3px 25px 4px; font-size: 10px; color: #999; background: #f8f8f8; page-break-inside: avoid; break-inside: avoid; border-top: 1px solid #e0e0e0; }
+    </style>
+<script>
+function handleLogoError(imgEl) {
+    if (imgEl.dataset.fallbackDone) return;
+    imgEl.dataset.fallbackDone = "true";
+    var svgHTML = '<svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 0 A50 50 0 0 1 100 50 A50 50 0 0 1 50 100 A50 50 0 0 1 0 50 A50 50 0 0 1 50 0" fill="#113458"/><path d="M50 2 A48 48 0 0 1 98 50 A48 48 0 0 1 50 98 A48 48 0 0 1 2 50 A48 48 0 0 1 50 2" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="10 5" /><circle cx="50" cy="50" r="36" fill="white"/><text x="50" y="55" font-family="Roboto, sans-serif" font-weight="900" font-size="20" fill="#113458" text-anchor="middle">HL</text></svg>';
+    imgEl.outerHTML = svgHTML;
+}
+
+/* Chuyển logo thành base64 data URI ngay khi tải xong — đảm bảo html2canvas luôn render được */
+function convertLogoToBase64() {
+    var img = document.getElementById('company-logo-img');
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+    try {
+        var canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        img.src = canvas.toDataURL('image/png');
+        img.removeAttribute('crossorigin');
+    } catch(e) { /* CORS fail — fallback SVG sẽ xử lý */ }
+}
+</script>
+</head>
+<body>
+
+<div class="export-toolbar no-print">
+    <span id="loader">Đang tải...</span>
+    <button onclick="exportToPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+    <button onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+    <button onclick="window.print()"><i class="fa-solid fa-print"></i> In Máy</button>
+</div>
+
+<div class="page" id="page-wrapper">
+    <div class="header">
+        <div class="header-left">
+            <div id="company-logo-container">
+                <svg width="64" height="64" viewBox="0 0 100 100">
+                    <path d="M50 0 A50 50 0 0 1 100 50 A50 50 0 0 1 50 100 A50 50 0 0 1 0 50 A50 50 0 0 1 50 0" fill="#113458"/>
+                    <path d="M50 2 A48 48 0 0 1 98 50 A48 48 0 0 1 50 98 A48 48 0 0 1 2 50 A48 48 0 0 1 50 2" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="10 5" />
+                    <circle cx="50" cy="50" r="36" fill="white"/>
+                    <text x="50" y="55" font-family="'Roboto', sans-serif" font-weight="900" font-size="20" fill="#113458" text-anchor="middle">HL</text>
+                </svg>
+            </div>
+            <div class="header-text-container">
+                <span class="h-line-1">CTY TNHH CƠ KHÍ CHẾ TẠO TM</span>
+                <span class="h-line-2" id="company-name">HIỆP LỰC</span>
+                <span class="h-line-3">Hiệp lực giá trị thực cho cuộc sống</span>
+            </div>
+        </div>
+        
+        <div class="header-graphic">
+            <img id="header-bg-img" class="header-bg-img" src="">
+            <div class="h-text-1">BÁO GIÁ</div>
+            <div class="h-text-2">QUOTATION</div>
+        </div>
+    </div>
+
+    <div class="content-wrap">
+        <div class="info-grid">
+            <div class="customer-box">
+                <div class="box-badge"><i class="fa-solid fa-user"></i> KÍNH GỬI ĐẾN KHÁCH HÀNG</div>
+                <table class="customer-table">
+                    <tr><td>Mr/Ms:</td><td id="c-contact">--</td></tr>
+                    <tr><td>Cellphone:</td><td id="c-phone">--</td></tr>
+                    <tr><td>Email:</td><td><a href="#" class="email-text" id="c-email">--</a></td></tr>
+                    <tr><td>CTY:</td><td id="c-company">--</td></tr>
+                </table>
+            </div>
+
+            <div class="meta-box">
+                <table class="meta-table">
+                    <tr><td><i class="fa-regular fa-calendar-days meta-icon"></i> Ngày lập</td><td id="q-date">--</td></tr>
+                    <tr><td><i class="fa-solid fa-clock-rotate-left meta-icon"></i> Giá trị tới ngày</td><td id="q-val-date">--</td></tr>
+                    <tr><td><i class="fa-solid fa-file-invoice meta-icon"></i> Số báo giá</td><td id="q-no">--</td></tr>
+                    <tr><td><i class="fa-solid fa-user-tie meta-icon"></i> Người phụ trách</td><td id="q-pic">--</td></tr>
+                    <tr><td><i class="fa-solid fa-phone meta-icon"></i> ĐT liên lạc</td><td id="q-pic-phone">--</td></tr>
+                    <tr><td><i class="fa-regular fa-envelope meta-icon"></i> Email</td><td id="q-pic-email">--</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="quote-banner">
+            <div class="quote-banner-icon"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="quote-banner-title">BÁO GIÁ</div>
+            <div class="quote-banner-desc" id="banner-desc">--</div>
+        </div>
+
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%">STT</th>
+                        <th style="width: 51%">Nội dung / Công Việc</th>
+                        <th style="width: 5%">ĐVT</th>
+                        <th style="width: 6%">Số lượng</th>
+                        <th style="width: 10%">Đơn giá<br>(VNĐ)</th>
+                        <th style="width: 14%">Thành Tiền<br>(VNĐ)</th>
+                        <th style="width: 10%">Ghi Chú</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr><td colspan="7">Đang tải dữ liệu chi tiết...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bottom-grid">
+            <!-- Hàng 1: Ghi chú đặc biệt ↔ Tổng tiền -->
+            <div class="note-box" style="align-self: stretch;">
+                <div class="box-badge"><i class="fa-solid fa-clipboard-list"></i> GHI CHÚ ĐẶC BIỆT CỦA KHÁCH HÀNG (NẾU CÓ)</div>
+                <div style="font-size: 13px;" id="c-special-note"></div>
+            </div>
+            <div class="totals-box">
+                <table class="totals-table">
+                    <tr><td>Tổng tiền (VNĐ)</td><td id="t-subtotal">0</td></tr>
+                    <tr><td>VAT (8%)</td><td id="t-vat">0</td></tr>
+                    <tr><td>TỔNG CỘNG</td><td id="t-total">0</td></tr>
+                </table>
+            </div>
+
+            <!-- Hàng 2: Ghi chú ↔ Ký tên -->
+            <div class="note-box">
+                <div class="box-badge red"><i class="fa-solid fa-clipboard"></i> GHI CHÚ</div>
+                <div class="note-text-italic" id="q-note"></div>
+            </div>
+            <div class="signature-box">
+                <table class="signature-table">
+                    <tr>
+                        <th>KT<br>Giám đốc</th>
+                        <td>
+                            </td>
+                    </tr>
+                    <tr><th>Ký tên</th><td style="height: 90px;"></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="pdf-footer">
+        <div class="avoid-break" style="padding: 0 25px;">
+            <div class="unified-footer">
+                <div class="qr-placeholder">
+                    <img id="vietqr-img" src="https://img.vietqr.io/image/ICB-117000018926-qr_only.png" width="58" height="58" alt="VietQR">
+                </div>
+                <div class="footer-right">
+                    <div class="footer-thankyou">
+                        <div class="footer-thankyou-icon"><i class="fa-solid fa-handshake-angle"></i></div>
+                        <div class="footer-thankyou-text">Cám ơn sự hợp tác của quý khách hàng !</div>
+                        <div class="footer-contact-row" id="footer-contact-info">
+                            <span><i class="fa-solid fa-user"></i> <span id="footer-contact-name">Lê Hoàng Thông (Mr)</span></span>
+                            <span class="sep">|</span>
+                            <span><i class="fa-solid fa-phone-volume"></i> 0919 370 575</span>
+                            <span class="sep">|</span>
+                            <span><i class="fa-regular fa-envelope"></i> congtyhiepluc@yahoo.com</span>
+                        </div>
+                    </div>
+                    <div class="footer-address">
+                        <div><i class="fa-solid fa-location-dot"></i><strong>Địa chỉ:</strong> <span id="f-address">Số 37 đường 357, Khu nhà ở Phước Long B, Phường Phước Long B, TP. Thủ Đức, TPHCM</span></div>
+                        <div style="margin-top: 2px; margin-left: 16px;" id="f-bank"><strong>MST:</strong> 0304237988 &nbsp;|&nbsp; <strong>STK:</strong> 117000018926 - NGÂN HÀNG CÔNG THƯƠNG, CN ĐÔNG SÀI GÒN</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-meta">
+            <div>D:/HL/QT</div>
+            <div>F-FL-QT-01</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec";
+    // Nhận ID từ Google Apps Script (phương pháp template an toàn nhất)
+    var SERVER_QUOTE_ID = "<?= quoteId ?>";
+
+    /* Vẽ nền xéo header bằng Canvas → PNG (html2canvas render hoàn hảo) */
+    (function renderHeaderGraphic() {
+        var c = document.createElement('canvas');
+        c.width = 700; c.height = 200; // 2x retina
+        var ctx = c.getContext('2d');
+        // Xám
+        ctx.fillStyle = '#D1D5DB';
+        ctx.beginPath(); ctx.moveTo(140,0); ctx.lineTo(700,0); ctx.lineTo(700,200); ctx.lineTo(0,200); ctx.closePath(); ctx.fill();
+        // Đỏ
+        ctx.fillStyle = '#E21F25';
+        ctx.beginPath(); ctx.moveTo(170,0); ctx.lineTo(700,0); ctx.lineTo(700,200); ctx.lineTo(30,200); ctx.closePath(); ctx.fill();
+        // Xanh đậm
+        ctx.fillStyle = '#113458';
+        ctx.beginPath(); ctx.moveTo(200,0); ctx.lineTo(700,0); ctx.lineTo(700,200); ctx.lineTo(60,200); ctx.closePath(); ctx.fill();
+        document.getElementById('header-bg-img').src = c.toDataURL('image/png');
+    })();
+
+    const sheetUrlPrefix = 'https://docs.google.com/spreadsheets/d/1l50QYV7alUj1Hyzykp7xgSuc9zX2DGzxErAHaDuwJFQ/gviz/tq?tqx=out:csv&sheet=';
+    
+    const store = { Quote_HD: [], Quote_Line: [], Customer: [], Company_profile: [], Cust_Contact: [], Employees: [] };
+    const loader = document.getElementById('loader');
+
+    function formatCurrency(ns) { return (parseFloat(ns) || 0).toLocaleString('vi-VN'); }
+
+    /* Kiểm tra có đang chạy trong Google Apps Script không */
+    function isAppsScript() {
+        return (typeof google !== 'undefined' && google.script && google.script.run);
+    }
+
+    /* Fetch dữ liệu qua Apps Script API (dùng fetch trên GitHub) */
+    function fetchViaAppsScript(quoteId) {
+        return fetch(`${APPS_SCRIPT_URL}?api=quoteData&quote_id=${quoteId}`)
+            .then(r => r.json())
+            .then(res => {
+                if(res.success) return res.data;
+                throw new Error(res.error || 'Lỗi không xác định từ server');
+            });
+    }
+
+    /* Fetch dữ liệu qua PapaParse (dùng khi chạy standalone) */
+    function fetchSheet(sheetName) {
+        return new Promise((resolve, reject) => {
+            let isDone = false;
+            const timer = setTimeout(() => {
+                if(!isDone) { isDone = true; reject(new Error("Timeout: " + sheetName)); }
+            }, 15000);
+            Papa.parse(sheetUrlPrefix + sheetName + "&t=" + Date.now(), {
+                download: true, header: true, skipEmptyLines: true,
+                complete: function(results) { if(!isDone) { isDone = true; clearTimeout(timer); resolve(results.data); } },
+                error: function(err) { if(!isDone) { isDone = true; clearTimeout(timer); reject(new Error("Lỗi đọc sheet " + sheetName)); } }
+            });
+        });
+    }
+
+    /* Xử lý company profile sau khi load xong */
+    function applyCompanyProfile() {
+        if (store.Company_profile.length === 0) return;
+        const cmp = store.Company_profile[0];
+        if(cmp['Company_Name']) document.getElementById('company-name').textContent = cmp['Company_Name'].replace('CÔNG TY TNHH CƠ KHÍ CHẾ TẠO TM ','').trim();
+
+        /* === LOGO === */
+        if(cmp['Logo']) {
+            if (isAppsScript()) {
+                // Apps Script: lấy logo server-side → base64, không bị CORS
+                google.script.run
+                    .withSuccessHandler(function(dataUrl) {
+                        if (dataUrl) {
+                            document.getElementById('company-logo-container').innerHTML = '<img id="company-logo-img" src="' + dataUrl + '" height="80" style="object-fit: contain;">';
+                        }
+                    })
+                    .withFailureHandler(function() { /* giữ SVG fallback */ })
+                    .getLogoBase64(cmp['Logo']);
+            } else {
+                // GitHub Pages: Dùng file logo nội bộ để đảm bảo tốc độ và không lỗi CORS
+                document.getElementById('company-logo-container').innerHTML = '<img id="company-logo-img" src="HiepLuc_logo.jpg" height="80" style="object-fit: contain;" onerror="handleLogoError(this)">';
+            }
+        }
+
+        if(cmp['Address']) document.getElementById('f-address').textContent = cmp['Address'];
+        if(cmp['Bank Information']) {
+            const parts = cmp['Bank Information'].split('|');
+            document.getElementById('f-bank').innerHTML = parts.length > 1 ? '<strong>' + parts[0].trim().split(':')[0] + ':</strong> ' + parts[0].trim().split(':')[1] + ' &nbsp;|&nbsp; <strong>' + parts[1].trim().split(':')[0] + ':</strong> ' + (parts[1].trim().split(':')[1] || parts[1]) : cmp['Bank Information'];
+        }
+        if(cmp['Info']) {
+            var infoStr = cmp['Info'];
+            var phone = '0919 370 575', email = 'congtyhiepluc@yahoo.com';
+            if (infoStr.indexOf('Phone:') >= 0 && infoStr.indexOf('Email:') >= 0) {
+                var phoneMatch = infoStr.match(/Phone:\s*([^\-]+)/), emailMatch = infoStr.match(/Email:\s*(.+)/);
+                if(phoneMatch) phone = phoneMatch[1].trim();
+                if(emailMatch) email = emailMatch[1].trim();
+            }
+            document.getElementById('footer-contact-info').innerHTML = '<span><i class="fa-solid fa-user"></i> <span id="footer-contact-name">Lê Hoàng Thông (Mr)</span></span><span class="sep">|</span><span><i class="fa-solid fa-phone-volume"></i> ' + phone + '</span><span class="sep">|</span><span><i class="fa-regular fa-envelope"></i> ' + email + '</span>';
+        }
+        // Người phụ trách báo giá từ Company_Profile
+        if(cmp['Quote_PIC']) document.getElementById('q-pic').textContent = cmp['Quote_PIC'];
+        if(cmp['Quote_Phone']) document.getElementById('q-pic-phone').textContent = cmp['Quote_Phone'];
+        if(cmp['Quote_Email']) document.getElementById('q-pic-email').textContent = cmp['Quote_Email'];
+    }
+
+    /* Resolve quoteId từ nhiều nguồn (server template, google.script.url, URLSearchParams) */
+    function resolveQuoteId() {
+        return new Promise(function(resolve) {
+            // Ưu tiên 1: ID được truyền từ Server template (an toàn tuyệt đối)
+            if (SERVER_QUOTE_ID && SERVER_QUOTE_ID.indexOf("<" + "?") === -1 && SERVER_QUOTE_ID.trim() !== '') {
+                return resolve(SERVER_QUOTE_ID.trim());
+            }
+            if (isAppsScript()) {
+                // Ưu tiên 2: google.script.url (backup khi template fail)
+                google.script.url.getLocation(function(location) {
+                    resolve(location.parameter.quote_id || location.parameter.id || '');
+                });
+            } else {
+                // Ưu tiên 3: URLSearchParams khi chạy offline/local
+                const params = new URLSearchParams(window.location.search);
+                resolve(params.get('quote_id') || params.get('id') || '');
+            }
+        });
+    }
+
+    /* Resolve tham số row padding (rp) từ URL — đơn vị px */
+    function resolveRowPadding() {
+        return new Promise(function(resolve) {
+            if (isAppsScript()) {
+                google.script.url.getLocation(function(location) {
+                    resolve(location.parameter.rp || '');
+                });
+            } else {
+                const params = new URLSearchParams(window.location.search);
+                resolve(params.get('rp') || '');
+            }
+        });
+    }
+
+    /* Resolve tham số note width từ URL — đơn vị % */
+    function resolveNoteWidth() {
+        return new Promise(function(resolve) {
+            if (isAppsScript()) {
+                google.script.url.getLocation(function(location) {
+                    resolve(location.parameter.note || '');
+                });
+            } else {
+                const params = new URLSearchParams(window.location.search);
+                resolve(params.get('note') || '');
+            }
+        });
+    }
+
+
+    async function initializeData() {
+        if(loader) loader.style.display = 'inline-block';
+        try {
+            // Resolve quoteId TRƯỚC để truyền vào server — server chỉ load dữ liệu cần thiết
+            const quoteId = await resolveQuoteId();
+
+            if (!quoteId) {
+                document.getElementById('table-body').innerHTML = '<tr><td colspan="7" style="color:red; font-weight:bold; padding: 20px;">LỖI: Vui lòng cung cấp tham số quote_id trên URL (Ví dụ: ?quote_id=xxx)</td></tr>';
+                return;
+            }
+
+            /* ====== CHẾ ĐỘ KÉP: Apps Script hoặc Standalone ====== */
+            if (isAppsScript()) {
+                console.log('[HL] Đang dùng google.script.run, quoteId:', quoteId);
+                var allData = await fetchViaAppsScript(quoteId);
+                store.Quote_HD = allData.Quote_HD || [];
+                store.Quote_Line = allData.Quote_Line || [];
+                store.Customer = allData.Customer || [];
+                store.Company_profile = allData.Company_profile || [];
+                store.Cust_Contact = allData.Cust_Contact || [];
+                store.Employees = allData.Employees || [];
+            } else {
+                console.log('[HL] Đang dùng PapaParse, quoteId:', quoteId);
+                var results = await Promise.all([
+                    fetchSheet('Quote_HD'), fetchSheet('Quote_Line'), fetchSheet('Customer'), fetchSheet('Company_profile'), fetchSheet('Cust_Contact'), fetchSheet('Employees')
+                ]);
+                store.Quote_HD = results[0].filter(r => r.Quote_ID === quoteId);
+                store.Quote_Line = results[1].filter(r => r.Quote_ID === quoteId);
+                store.Customer = results[2];
+                store.Company_profile = results[3];
+                store.Cust_Contact = results[4];
+                store.Employees = results[5];
+            }
+
+            applyCompanyProfile();
+            renderQuote(quoteId);
+
+            // Áp dụng row padding từ URL param &rp=X (px)
+            const rpValue = await resolveRowPadding();
+            if (rpValue) {
+                const rpPx = parseFloat(rpValue);
+                if (!isNaN(rpPx) && rpPx >= 0) {
+                    document.querySelectorAll('.data-table td').forEach(td => {
+                        td.style.paddingTop = rpPx + 'px';
+                        td.style.paddingBottom = rpPx + 'px';
+                    });
+                }
+            }
+
+            // Áp dụng độ rộng cột note từ URL param &note=X (%)
+            const noteWidthValue = await resolveNoteWidth();
+            if (noteWidthValue) {
+                const noteWidthPct = parseFloat(noteWidthValue);
+                if (!isNaN(noteWidthPct) && noteWidthPct >= 10 && noteWidthPct <= 45) { // giới hạn max 45% để không phá vỡ layout
+                    const descWidthPct = 51 - (noteWidthPct - 10);
+                    const ths = document.querySelectorAll('.data-table th');
+                    if (ths.length >= 7) {
+                        ths[1].style.width = descWidthPct + '%';
+                        ths[6].style.width = noteWidthPct + '%';
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error('[HL] Lỗi:', error);
+            var tbody = document.getElementById('table-body');
+            if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="color:red; font-weight:bold; padding: 20px;">LỖI: ' + error.message + '<br><br>👉 Vui lòng F5 lại trang hoặc chờ 2 phút.</td></tr>';
+        } finally {
+            if(loader) loader.style.display = 'none';
+        }
+    }
+
+    function renderQuote(quoteId) {
+        const quoteHd = store.Quote_HD.find(q => q.Quote_ID === quoteId);
+        if(!quoteHd) {
+             document.getElementById('table-body').innerHTML = '<tr><td colspan="7" style="color:red; font-weight:bold; padding: 20px;">Không tìm thấy mã báo giá: ' + quoteId + '</td></tr>';
+             return;
+        }
+
+        var rawDate = quoteHd['Expiration_Date'] || '';
+        if (rawDate) {
+            var d = new Date(rawDate);
+            if (!isNaN(d.getTime())) {
+                // Định dạng Ngày Lập
+                var formattedDate = ('0'+d.getDate()).slice(-2) + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + d.getFullYear();
+                document.getElementById('q-date').textContent = formattedDate;
+
+                // Tính toán Giá trị tới ngày = Ngày Lập + 15
+                var valDate = new Date(d.getTime());
+                valDate.setDate(valDate.getDate() + 15);
+                var formattedValDate = ('0'+valDate.getDate()).slice(-2) + '/' + ('0'+(valDate.getMonth()+1)).slice(-2) + '/' + valDate.getFullYear();
+                document.getElementById('q-val-date').textContent = formattedValDate;
+            } else {
+                document.getElementById('q-date').textContent = rawDate;
+                document.getElementById('q-val-date').textContent = '--';
+            }
+        } else {
+            document.getElementById('q-date').textContent = '--';
+            document.getElementById('q-val-date').textContent = '--';
+        }
+
+        document.getElementById('q-no').textContent = quoteHd['Quote_Number'] || quoteHd['Quote_ID'] || '';
+
+        document.getElementById('banner-desc').textContent = quoteHd['Customer_PR_No'] || '';
+
+        // Ghi chú tổng quan từ Quote_HD.Note
+        const noteEl = document.getElementById('q-note');
+        if (noteEl) {
+            const noteText = quoteHd['Note'] || '';
+            noteEl.innerHTML = noteText ? noteText.replace(/\n/g, '<br>') : '';
+        }
+
+        const customer = store.Customer.find(c => c['Customer_ID'] === quoteHd['Customer_ID']);
+        if(customer) {
+            document.getElementById('c-company').textContent = customer['Customer_Name'] || '';
+        }
+
+        const contactId = quoteHd['Contact_ID'];
+        const contact = store.Cust_Contact ? store.Cust_Contact.find(c => c['Contact_ID'] === contactId) : null;
+        if(contact) {
+            document.getElementById('c-contact').textContent = contact['Name'] || '--';
+            document.getElementById('c-phone').textContent = contact['Phone'] || '--';
+            document.getElementById('c-email').textContent = contact['Email'] || '--';
+            document.getElementById('c-email').href = contact['Email'] ? `mailto:${contact['Email']}` : '#';
+        } else {
+            document.getElementById('c-contact').textContent = '--';
+            document.getElementById('c-phone').textContent = '--';
+            document.getElementById('c-email').textContent = '--';
+            document.getElementById('c-email').href = '#';
+        }
+
+        const lines = store.Quote_Line.filter(l => l.Quote_ID === quoteId);
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+        let subTotal = 0;
+        
+        if (lines.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7">Không có chi tiết báo giá</td></tr>`;
+        } else {
+            // 1. Nhóm dữ liệu và tính tổng
+            const groups = [];
+            let currentGroupObj = null;
+
+            lines.forEach((line) => {
+                let groupBy = line['Group_By'] ? line['Group_By'].trim() : '';
+                
+                // Nếu khác nhóm hiện tại, tạo nhóm mới
+                if (!currentGroupObj || groupBy !== currentGroupObj.groupName) {
+                    currentGroupObj = { groupName: groupBy, items: [], sumPrice: 0, sumAmount: 0 };
+                    groups.push(currentGroupObj);
+                }
+                
+                currentGroupObj.items.push(line);
+                
+                const qty = parseFloat(line['Quantity']) || 0;
+                const price = parseFloat(line['Price']) || 0; 
+                let amount = parseFloat(line['Amount']) || (qty * price);
+                
+                currentGroupObj.sumPrice += price;
+                currentGroupObj.sumAmount += amount;
+                subTotal += amount;
+            });
+
+            // 2. Render HTML theo từng nhóm
+            let itemIndex = 1;
+            groups.forEach((g) => {
+                // In dòng header group nếu có tên nhóm
+                if (g.groupName) {
+                    tbody.innerHTML += `<tr style="background-color: #EDF2F7; font-weight: 700; color: #113458; font-size: 13.5px;">
+                        <td colspan="4" style="text-align: left; padding-left: 15px; color: #113458;">${g.groupName}</td>
+                        <td style="color: #113458;"></td>
+                        <td style="color: #113458; text-align: right; padding-right: 10px;">${g.sumAmount ? formatCurrency(g.sumAmount) : ''}</td>
+                        <td style="color: #113458;"></td>
+                    </tr>`;
+                }
+
+                // In các vật tư con trong nhóm
+                g.items.forEach((line) => {
+                    const qty = parseFloat(line['Quantity']) || 0, price = parseFloat(line['Price']) || 0; 
+                    let amount = parseFloat(line['Amount']) || (qty * price);
+                    let uomVal = line['UOM'] || '';
+
+                    tbody.innerHTML += `<tr><td style="font-weight: bold;">${itemIndex++}</td><td style="text-align: left;">${line['Description'] || ''}</td><td>${uomVal}</td><td style="font-weight: bold;">${qty}</td><td>${price ? formatCurrency(price) : ''}</td><td>${formatCurrency(amount)}</td><td style="text-align:left; font-size:11px; color:#555;">${line['Note'] || ''}</td></tr>`;
+                });
+            });
+        }
+
+        const vat = subTotal * 0.08, total = subTotal + vat;
+        document.getElementById('t-subtotal').textContent = formatCurrency(subTotal);
+        document.getElementById('t-vat').textContent = formatCurrency(vat);
+        document.getElementById('t-total').textContent = formatCurrency(total);
+
+        // Cập nhật VietQR với số tiền tổng cộng
+        const qrImg = document.getElementById('vietqr-img');
+        if (qrImg) {
+            const totalInt = Math.round(total);
+            qrImg.src = 'https://img.vietqr.io/image/ICB-117000018926-qr_only.png?amount=' + totalInt;
+        }
+    }
+
+    /* ===== XUẤT PDF — Dùng html2canvas + jsPDF trực tiếp ===== */
+    async function exportToPDF() {
+        const elem = document.getElementById('page-wrapper');
+        const toolbar = document.querySelector('.export-toolbar');
+        const quoteNo = document.getElementById('q-no').textContent || 'Quotation';
+        const pdfBtn = document.querySelectorAll('.export-toolbar button')[0];
+        const allBtns = document.querySelectorAll('.export-toolbar button');
+        allBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
+        if(pdfBtn) pdfBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG TẠO PDF...';
+
+        try {
+            // fonts.ready với timeout 3s — tránh treo trong iframe Apps Script
+            await Promise.race([
+                document.fonts.ready,
+                new Promise(r => setTimeout(r, 3000))
+            ]);
+
+            // Ẩn toolbar khi chụp
+            if (toolbar) toolbar.style.visibility = 'hidden';
+            window.scrollTo(0, 0);
+            await new Promise(r => setTimeout(r, 400));
+
+            // Thuật toán tính spacer dựa trên mô phỏng chính xác logic cắt trang của jsPDF
+            const oldSpacer = document.getElementById('dynamic-spacer');
+            if (oldSpacer) oldSpacer.remove();
+
+            const pdfFooterEl = document.getElementById('pdf-footer');
+            if (pdfFooterEl) {
+                const scale = 2;
+                const eTop = elem.getBoundingClientRect().top;
+                const cy = node => {
+                    const r = node.getBoundingClientRect();
+                    return { top: Math.round((r.top - eTop) * scale), bot: Math.round((r.bottom - eTop) * scale) };
+                };
+                
+                const simBlocks = [];
+                elem.querySelectorAll('tbody tr, thead tr').forEach(node => {
+                    const r = node.getBoundingClientRect();
+                    if (r.height < 12) return;
+                    simBlocks.push(cy(node));
+                });
+                ['.header', '.info-grid', '.quote-banner', '.bottom-grid', '.note-box', '.totals-box', '.signature-box'].forEach(sel => {
+                    elem.querySelectorAll(sel).forEach(node => simBlocks.push(cy(node)));
+                });
+                simBlocks.sort((a, b) => a.top - b.top);
+
+                const pdfW = 210, pdfH_A4 = 297, topMm = 8;
+                const canvasW = elem.offsetWidth * scale;
+                const pxPerMm = canvasW / pdfW;
+                const pageH = pdfH_A4 * pxPerMm;
+                const topPx = Math.round(topMm * pxPerMm);
+
+                const footerTop = Math.round((pdfFooterEl.getBoundingClientRect().top - eTop) * scale);
+                const footerH = Math.round(pdfFooterEl.offsetHeight * scale);
+
+                const theadTr = elem.querySelector('thead tr');
+                const tbodyTrs = elem.querySelectorAll('tbody tr');
+                const firstTr = tbodyTrs.length > 0 ? tbodyTrs[0] : null;
+                const lastTr = tbodyTrs.length > 0 ? tbodyTrs[tbodyTrs.length - 1] : null;
+
+                const theadR = theadTr ? theadTr.getBoundingClientRect() : null;
+                const theadH = theadR ? Math.round(theadR.height * scale) : 0;
+                
+                const tbodyTop = firstTr ? Math.round((firstTr.getBoundingClientRect().top - eTop) * scale) : 0;
+                const tbodyBot = lastTr ? Math.round((lastTr.getBoundingClientRect().bottom - eTop) * scale) : 0;
+
+                let pageStart = 0, pageNum = 0;
+                let lastAvailH = 0, lastSliceH = 0, lastRepeatHeaderH = 0;
+
+                // Mô phỏng cắt trang cho nội dung nằm TRƯỚC footer
+                while (pageStart < footerTop) {
+                    lastAvailH = pageNum === 0 ? pageH : (pageH - topPx);
+                    
+                    lastRepeatHeaderH = 0;
+                    if (pageNum > 0 && theadH > 0 && pageStart > tbodyTop - 10 && pageStart < tbodyBot - 10) {
+                        lastRepeatHeaderH = theadH;
+                    }
+
+                    let pageEnd = Math.min(pageStart + lastAvailH - lastRepeatHeaderH, footerTop);
+
+                    for (const b of simBlocks) {
+                        if (b.top >= pageEnd) break;
+                        if (b.top < pageEnd && b.bot > pageEnd) {
+                            if (b.top > pageStart) pageEnd = b.top;
+                            break;
+                        }
+                    }
+
+                    lastSliceH = pageEnd - pageStart;
+                    if (lastSliceH <= 0) { pageStart++; continue; }
+
+                    pageStart = pageEnd;
+                    pageNum++;
+                }
+
+                // Tính khoảng trống còn lại trên trang PDF cuối cùng của nội dung
+                const spaceLeft = lastAvailH - lastSliceH - lastRepeatHeaderH;
+                const safeMargin = 15 * scale; // Trừ hao 15px (unscaled)
+                let scaledSpacer = 0;
+
+                if (footerH + safeMargin <= spaceLeft) {
+                    // Footer vừa vặn trên cùng trang
+                    scaledSpacer = spaceLeft - footerH - safeMargin;
+                } else {
+                    // Footer bị đẩy sang trang tiếp theo
+                    const nextAvailH = pageH - topPx;
+                    scaledSpacer = spaceLeft + nextAvailH - footerH - safeMargin;
+                }
+
+                const finalSpacerPx = Math.floor(scaledSpacer / scale);
+
+                if (finalSpacerPx > 0) {
+                    const spacerEl = document.createElement('div');
+                    spacerEl.id = 'dynamic-spacer';
+                    spacerEl.style.height = finalSpacerPx + 'px';
+                    pdfFooterEl.parentNode.insertBefore(spacerEl, pdfFooterEl);
+                }
+            }
+            await new Promise(r => setTimeout(r, 400)); // Đợi render spacer
+
+            const scale = 2;
+            const eTop = elem.getBoundingClientRect().top;
+            const cy = node => {
+                const r = node.getBoundingClientRect();
+                return { top: Math.round((r.top - eTop) * scale), bot: Math.round((r.bottom - eTop) * scale) };
+            };
+            const blocks = [];
+            elem.querySelectorAll('tbody tr, thead tr').forEach(node => {
+                const r = node.getBoundingClientRect();
+                if (r.height < 12) return;
+                blocks.push(cy(node));
+            });
+            ['.header', '.info-grid', '.quote-banner', '.bottom-grid', '#pdf-footer', '.note-box', '.totals-box', '.signature-box'].forEach(sel => {
+                elem.querySelectorAll(sel).forEach(node => blocks.push(cy(node)));
+            });
+            blocks.sort((a, b) => a.top - b.top);
+
+            const canvas = await html2canvas(elem, {
+                scale,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                scrollX: 0,
+                scrollY: 0
+            });
+
+            if (toolbar) toolbar.style.visibility = 'visible';
+
+            const { jsPDF } = window.jspdf;
+            const pdfW = 210, pdfH_A4 = 297, topMm = 8, BORDER = 2;
+            const pxPerMm = canvas.width / pdfW;
+            const pageH = pdfH_A4 * pxPerMm;
+            const topPx = Math.round(topMm * pxPerMm);
+
+            const theadTr2 = elem.querySelector('thead tr');
+            const tbodyTrs2 = elem.querySelectorAll('tbody tr');
+            const firstTr2 = tbodyTrs2.length > 0 ? tbodyTrs2[0] : null;
+            const lastTr2 = tbodyTrs2.length > 0 ? tbodyTrs2[tbodyTrs2.length - 1] : null;
+
+            const theadR2 = theadTr2 ? theadTr2.getBoundingClientRect() : null;
+            const theadTop2 = theadR2 ? Math.round((theadR2.top - eTop) * scale) : 0;
+            const theadH2 = theadR2 ? Math.round(theadR2.height * scale) : 0;
+
+            const tbodyTop2 = firstTr2 ? Math.round((firstTr2.getBoundingClientRect().top - eTop) * scale) : 0;
+            const tbodyBot2 = lastTr2 ? Math.round((lastTr2.getBoundingClientRect().bottom - eTop) * scale) : 0;
+
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            let pageStart = 0, pageNum = 0;
+
+            while (pageStart < canvas.height) {
+                const availH = pageNum === 0 ? pageH : (pageH - topPx);
+                
+                let repeatHeaderH = 0;
+                if (pageNum > 0 && theadH2 > 0 && pageStart > tbodyTop2 - 10 && pageStart < tbodyBot2 - 10) {
+                    repeatHeaderH = theadH2;
+                }
+
+                let pageEnd = Math.min(pageStart + availH - repeatHeaderH, canvas.height);
+
+                for (const b of blocks) {
+                    if (b.top >= pageEnd) break;
+                    if (b.top < pageEnd && b.bot > pageEnd) {
+                        if (b.top > pageStart) pageEnd = b.top;
+                        break;
+                    }
+                }
+
+                const sliceH = pageEnd - pageStart;
+                if (sliceH <= 0) { pageStart++; continue; }
+
+                // Skip slices that contain no actual content (prevents blank trailing pages)
+                const hasContent = blocks.some(b => b.bot > pageStart && b.top < pageEnd);
+                if (!hasContent && pageStart > 0) {
+                    pageStart = pageEnd;
+                    continue;
+                }
+
+                if (pageNum > 0) pdf.addPage('a4', 'portrait');
+
+                const pad = pageNum > 0 ? topPx : 0;
+                const ovlp = pageNum > 0 ? BORDER : 0;
+                const srcY = Math.max(0, pageStart - ovlp);
+                const srcH = pageEnd - srcY;
+
+                const pc = document.createElement('canvas');
+                pc.width = canvas.width;
+                pc.height = srcH + pad + repeatHeaderH;
+                const ctx = pc.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, pc.width, pc.height);
+                
+                let drawY = pad - ovlp;
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, pc.width, pad - ovlp);
+
+                if (repeatHeaderH > 0) {
+                    ctx.drawImage(canvas, 0, theadTop2, canvas.width, theadH2, 0, drawY, canvas.width, theadH2);
+                    drawY += theadH2;
+                }
+                
+                ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, drawY, canvas.width, srcH);
+                
+                pdf.addImage(pc.toDataURL('image/jpeg', 0.95), 'JPEG',
+                    0, 0, pdfW, (pc.height / canvas.width) * pdfW, undefined, 'FAST');
+                pageStart = pageEnd;
+                pageNum++;
+            }
+
+            // Dọn dẹp spacer sau khi xuất xong
+            const finalSpacer = document.getElementById('dynamic-spacer');
+            if (finalSpacer) finalSpacer.remove();
+
+            pdf.save(`Bao_Gia_${quoteNo}.pdf`);
+
+        } catch (err) {
+            if (toolbar) toolbar.style.visibility = 'visible';
+            alert('Lỗi tạo PDF: ' + err.message + '\n\nBạn có thể dùng nút "In Máy" và chọn Save as PDF.');
+            console.error(err);
+        }
+        allBtns.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
+        if(pdfBtn) pdfBtn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> PDF';
+    }
+
+    async function exportToExcel() {
+        const quoteNo = document.getElementById('q-no').textContent || 'Quotation';
+        const excelBtn = document.querySelectorAll('.export-toolbar button')[1];
+        const oldText = excelBtn.innerHTML;
+        excelBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG TẠO EXCEL...';
+        excelBtn.disabled = true;
+
+        try {
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Bao_Gia');
+
+            // Cài đặt độ rộng cột
+            ws.columns = [
+                { width: 5 },  // A: STT
+                { width: 55 }, // B: Nội dung
+                { width: 8 },  // C: ĐVT
+                { width: 10 }, // D: Số lượng
+                { width: 16 }, // E: Đơn giá
+                { width: 20 }, // F: Thành tiền
+                { width: 15 }  // G: Ghi chú
+            ];
+
+            // 1. Tiêu đề Công ty (Row 1-2)
+            ws.mergeCells('A1:E1');
+            ws.getCell('A1').value = 'CTY TNHH CƠ KHÍ CHẾ TẠO TM HIỆP LỰC';
+            ws.getCell('A1').font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FFFF0000' } };
+            ws.getCell('A1').alignment = { vertical: 'middle' };
+
+            ws.mergeCells('A2:E2');
+            ws.getCell('A2').value = 'Hiệp lực giá trị thực cho cuộc sống';
+            ws.getCell('A2').font = { name: 'Arial', size: 11, color: { argb: 'FF00B050' } };
+            ws.getCell('A2').alignment = { vertical: 'middle' };
+
+            // 2. Chèn Logo (Vùng A3:C9)
+            const logoImg = document.getElementById('company-logo-img');
+            if (logoImg && logoImg.src && logoImg.src.startsWith('data:image')) {
+                try {
+                    const base64Data = logoImg.src.split(',')[1];
+                    const imageId = wb.addImage({ base64: base64Data, extension: 'png' });
+                    ws.addImage(imageId, {
+                        tl: { col: 0.5, row: 2.5 },
+                        ext: { width: 110, height: 110 }
+                    });
+                } catch(e) { console.error('Lỗi chèn logo', e); }
+            }
+
+            // 3. Thông tin báo giá bên phải (D3:G9)
+            const setQuoteInfoRow = (rowNum, label, value) => {
+                ws.getCell(`D${rowNum}`).value = label;
+                ws.getCell(`D${rowNum}`).font = { name: 'Arial', size: 10 };
+                ws.getCell(`D${rowNum}`).alignment = { vertical: 'middle' };
+                ws.mergeCells(`E${rowNum}:G${rowNum}`);
+                ws.getCell(`E${rowNum}`).value = value;
+                ws.getCell(`E${rowNum}`).font = { name: 'Arial', size: 10 };
+                ws.getCell(`E${rowNum}`).alignment = { vertical: 'middle' };
+                // Viền nhạt
+                ws.getCell(`D${rowNum}`).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                ws.getCell(`E${rowNum}`).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            };
+
+            const getText = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.textContent : '';
+            };
+
+            setQuoteInfoRow(3, 'Ngày', getText('q-date'));
+            setQuoteInfoRow(4, 'Giá trị', getText('q-val-date'));
+            setQuoteInfoRow(5, 'Số Báo Giá', getText('q-no'));
+            setQuoteInfoRow(6, 'Người phụ trách', getText('q-pic'));
+            setQuoteInfoRow(7, 'Điện thoại liên lạc', getText('q-pic-phone'));
+            setQuoteInfoRow(8, 'Email', getText('q-pic-email'));
+
+            // 4. Header khối thông tin (Row 10)
+            ws.mergeCells('A10:C10');
+            ws.getCell('A10').value = 'Kính Gửi Đến Khách Hàng';
+            ws.getCell('A10').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF113458' } };
+            ws.getCell('A10').font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            ws.getCell('A10').alignment = { horizontal: 'center', vertical: 'middle' };
+            ws.getRow(10).height = 22;
+            
+            ws.mergeCells('D10:G10');
+            ws.getCell('D10').value = 'Báo Giá';
+            ws.getCell('D10').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF113458' } };
+            ws.getCell('D10').font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            ws.getCell('D10').alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // 5. Customer info (Trái) & Tên PR (Phải) (Row 11-14)
+            const setCustomerRow = (rowNum, label, value) => {
+                ws.mergeCells(`A${rowNum}:C${rowNum}`);
+                const cell = ws.getCell(`A${rowNum}`);
+                cell.alignment = { vertical: 'middle', wrapText: true };
+                
+                if(label === 'Email:') {
+                    cell.value = {
+                        richText: [
+                            { font: { italic: true, bold: true, size: 10 }, text: label + ' ' },
+                            { font: { color: { argb: 'FF0056B3' }, underline: true, size: 10 }, text: value }
+                        ]
+                    };
+                } else {
+                    cell.value = {
+                        richText: [
+                            { font: { italic: true, bold: true, size: 10 }, text: label + ' ' },
+                            { font: { size: 10 }, text: value }
+                        ]
+                    };
+                }
+            };
+            
+            setCustomerRow(11, 'Mr/Ms:', getText('c-contact'));
+            setCustomerRow(12, 'Cellphone:', getText('c-phone'));
+            setCustomerRow(13, 'Email:', getText('c-email'));
+            setCustomerRow(14, 'CTY:', getText('c-company'));
+
+            // Tên PR nằm ở bên phải
+            ws.mergeCells('D11:G14');
+            ws.getCell('D11').value = getText('banner-desc');
+            ws.getCell('D11').font = { bold: true, size: 11 };
+            ws.getCell('D11').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            
+            // Viền ngoài cho khối thông tin
+            for (let r = 11; r <= 14; r++) {
+                // Khối Trái (A-C)
+                for (let c = 1; c <= 3; c++) {
+                    let border = {};
+                    if (r === 14) border.bottom = {style:'thin'};
+                    if (c === 1) border.left = {style:'thin'};
+                    if (c === 3) border.right = {style:'thin'};
+                    ws.getRow(r).getCell(c).border = border;
+                }
+                // Khối Phải (D-G)
+                for (let c = 4; c <= 7; c++) {
+                    let border = {};
+                    if (r === 14) border.bottom = {style:'thin'};
+                    if (c === 4) border.left = {style:'thin'};
+                    if (c === 7) border.right = {style:'thin'};
+                    ws.getRow(r).getCell(c).border = border;
+                }
+            }
+
+            ws.addRow([]); // Dòng 15 rỗng
+
+            // 6. Header Bảng
+            const headerRow = ws.addRow(['STT', 'Nội dung / Công Việc', 'ĐVT', 'Số lượng', 'Đơn giá (VNĐ)', 'Thành Tiền (VNĐ)', 'Ghi Chú']);
+            headerRow.height = 25;
+            headerRow.eachCell((cell) => {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF113458' } };
+                cell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            });
+
+            // 4. Dữ liệu bảng
+            const rows = document.querySelectorAll('#table-body tr');
+            rows.forEach((tr) => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length === 7) {
+                    const qty = parseFloat(tds[3].innerText.replace(/\./g, '').replace(/,/g, '.')) || tds[3].innerText;
+                    const price = parseFloat(tds[4].innerText.replace(/\./g, '').replace(/,/g, '.')) || tds[4].innerText;
+                    const amount = parseFloat(tds[5].innerText.replace(/\./g, '').replace(/,/g, '.')) || tds[5].innerText;
+                    
+                    const r = ws.addRow([tds[0].innerText, tds[1].innerText, tds[2].innerText, qty, price, amount, tds[6].innerText]);
+                    r.eachCell((cell, colNum) => {
+                        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                        cell.alignment = { vertical: 'middle', wrapText: true };
+                        if (colNum === 4 || colNum === 5 || colNum === 6) cell.numFmt = '#,##0'; // Format số
+                        if (colNum === 1 || colNum === 3 || colNum === 4) cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                    });
+                } else {
+                    const r = ws.addRow([tds[0].innerText]);
+                    ws.mergeCells(`A${r.number}:G${r.number}`);
+                    r.getCell(1).alignment = { horizontal: 'center' };
+                    r.getCell(1).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                }
+            });
+
+            // 5. Tổng cộng
+            const subTotal = getText('t-subtotal');
+            const vat = getText('t-vat');
+            const total = getText('t-total');
+
+            const parseNum = (str) => parseFloat(str.replace(/\./g, '').replace(/,/g, '.')) || 0;
+
+            const r1 = ws.addRow(['', '', '', '', 'Tổng tiền (VNĐ):', parseNum(subTotal), '']);
+            const r2 = ws.addRow(['', '', '', '', 'VAT (8%):', parseNum(vat), '']);
+            const r3 = ws.addRow(['', '', '', '', 'TỔNG CỘNG:', parseNum(total), '']);
+
+            [r1, r2, r3].forEach(r => {
+                r.getCell(5).font = { bold: true };
+                r.getCell(5).alignment = { horizontal: 'right', vertical: 'middle' };
+                r.getCell(6).numFmt = '#,##0';
+                r.getCell(6).font = { bold: true };
+                r.getCell(6).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            });
+            r3.getCell(5).font = { bold: true, color: { argb: 'FFFF0000' } };
+            r3.getCell(6).font = { bold: true, color: { argb: 'FFFF0000' } };
+            r3.height = 25;
+
+            // 6. Chữ ký
+            ws.addRow([]); // Dòng cách khoảng
+
+            const rSig1 = ws.addRow(['', '', '', '', 'KT\nGiám đốc', '', '']);
+            ws.mergeCells(`F${rSig1.number}:G${rSig1.number}`);
+            rSig1.height = 60;
+            rSig1.getCell(5).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            rSig1.getCell(5).font = { name: 'Times New Roman', size: 12 };
+            rSig1.getCell(5).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            rSig1.getCell(6).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+            const rSig2 = ws.addRow(['', '', '', '', 'Ký tên', '', '']);
+            ws.mergeCells(`F${rSig2.number}:G${rSig2.number}`);
+            rSig2.height = 180;
+            rSig2.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
+            rSig2.getCell(5).font = { name: 'Times New Roman', size: 12 };
+            rSig2.getCell(5).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            rSig2.getCell(6).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+            // Xuất file
+            const buffer = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buffer], { type: 'application/octet-stream' }), `Bao_Gia_${quoteNo}.xlsx`);
+
+        } catch (err) {
+            alert('Lỗi xuất Excel: ' + err.message);
+            console.error(err);
+        }
+
+        excelBtn.innerHTML = oldText;
+        excelBtn.disabled = false;
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeData);
+</script>
+</body>
+</html>
