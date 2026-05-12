@@ -453,27 +453,15 @@ function convertLogoToBase64() {
             }
 
             /* ====== CHẾ ĐỘ KÉP: Apps Script hoặc Standalone ====== */
-            if (isAppsScript()) {
-                console.log('[HL] Đang dùng google.script.run, quoteId:', quoteId);
-                var allData = await fetchViaAppsScript(quoteId);
-                store.Quote_HD = allData.Quote_HD || [];
-                store.Quote_Line = allData.Quote_Line || [];
-                store.Customer = allData.Customer || [];
-                store.Company_profile = allData.Company_profile || [];
-                store.Cust_Contact = allData.Cust_Contact || [];
-                store.Employees = allData.Employees || [];
-            } else {
-                console.log('[HL] Đang dùng PapaParse, quoteId:', quoteId);
-                var results = await Promise.all([
-                    fetchSheet('Quote_HD'), fetchSheet('Quote_Line'), fetchSheet('Customer'), fetchSheet('Company_profile'), fetchSheet('Cust_Contact'), fetchSheet('Employees')
-                ]);
-                store.Quote_HD = results[0].filter(r => r.Quote_ID === quoteId);
-                store.Quote_Line = results[1].filter(r => r.Quote_ID === quoteId);
-                store.Customer = results[2];
-                store.Company_profile = results[3];
-                store.Cust_Contact = results[4];
-                store.Employees = results[5];
-            }
+            // Fetch dữ liệu từ Apps Script API
+            console.log('[HL] Đang dùng Apps Script API, quoteId:', quoteId);
+            var allData = await fetchViaAppsScript(quoteId);
+            store.Quote_HD = allData.Quote_HD || [];
+            store.Quote_Line = allData.Quote_Line || [];
+            store.Customer = allData.Customer || [];
+            store.Company_profile = allData.Company_profile || [];
+            store.Cust_Contact = allData.Cust_Contact || [];
+            store.Employees = allData.Employees || [];
 
             applyCompanyProfile();
             renderQuote(quoteId);
