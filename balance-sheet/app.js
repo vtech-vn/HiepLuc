@@ -4,51 +4,52 @@ const processor = new DataProcessor(SHEET_ID);
 let assetsChart, capitalChart;
 
 async function init() {
-    updateDate();
+    // Set default date to today
+    const dateInput = document.getElementById('as-of-date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    processor.setAsOfDate(today);
+
     await loadData();
 
     document.getElementById('refresh-btn').addEventListener('click', async () => {
-        const btn = document.getElementById('refresh-btn');
-        btn.innerHTML = '🔄 Đang cập nhật...';
-        btn.disabled = true;
+        processor.setAsOfDate(dateInput.value);
         await loadData();
-        btn.innerHTML = '<span class="icon">🔄</span> Làm mới dữ liệu';
-        btn.disabled = false;
-        showNotification('Dữ liệu đã được cập nhật!');
+        showNotification('Đã cập nhật số liệu!');
+    });
+
+    dateInput.addEventListener('change', () => {
+        // Option: Auto-refresh on date change
     });
 }
 
-function updateDate() {
-    const now = new Date();
-    document.getElementById('current-date').innerText = `Cập nhật lúc: ${now.toLocaleDateString('vi-VN')} ${now.toLocaleTimeString('vi-VN')}`;
-}
-
 async function loadData() {
+    const loader = document.getElementById('report-body');
+    loader.innerHTML = '<tr><td colspan="4" class="text-center">🔄 Đang tính toán dữ liệu...</td></tr>';
+    
     try {
         const report = await processor.process();
         renderTable(report);
         renderSummary(report.values);
         renderCharts(report.values);
     } catch (error) {
-        console.error("Error loading data:", error);
-        showNotification('Lỗi khi tải dữ liệu. Vui lòng kiểm tra kết nối mạng.', 'error');
+        console.error(error);
+        showNotification('Lỗi khi tải dữ liệu', 'error');
     }
 }
 
 function formatCurrency(value) {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    return new Intl.NumberFormat('vi-VN', { 
+        style: 'decimal', 
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0 
+    }).format(value) + ' ₫';
 }
 
 function renderSummary(values) {
-    const assets = values["270"] || 0;
-    const liabilities = values["300"] || 0;
-    const equity = values["400"] || 0;
-
-    document.getElementById('total-assets').innerText = formatCurrency(assets);
-    document.getElementById('total-liabilities').innerText = formatCurrency(liabilities);
-    document.getElementById('total-equity').innerText = formatCurrency(equity);
-
-    // Animate numbers (optional enhancement)
+    document.getElementById('total-assets').innerText = formatCurrency(values["270"] || 0);
+    document.getElementById('total-liabilities').innerText = formatCurrency(values["300"] || 0);
+    document.getElementById('total-equity').innerText = formatCurrency(values["400"] || 0);
 }
 
 function renderTable(report) {
@@ -57,18 +58,17 @@ function renderTable(report) {
 
     report.definition.forEach(item => {
         const value = report.values[item.Code] || 0;
+        if (!item.Code && !item.Name) return;
+
         const row = document.createElement('tr');
-        
-        // Determine level based on indentation or code hierarchy
         let level = 2;
         if (item.Code.endsWith('00')) level = 0;
         else if (item.Code.endsWith('0')) level = 1;
         
         row.className = `row-level-${level}`;
-        
         row.innerHTML = `
-            <td>${item.Code}</td>
-            <td>${item.Name}</td>
+            <td>${item.Code || ''}</td>
+            <td style="padding-left: ${level * 20 + 16}px">${item.Name}</td>
             <td class="text-right ${value < 0 ? 'negative-value' : ''}">${formatCurrency(value)}</td>
             <td class="text-right">0 ₫</td>
         `;
@@ -87,47 +87,38 @@ function renderCharts(values) {
     const equity = Math.abs(values["400"] || 0);
 
     capitalChart = new Chart(ctxCapital, {
-        type: 'doughnut',
+        type: 'pie',
         data: {
             labels: ['Nợ phải trả', 'Vốn chủ sở hữu'],
             datasets: [{
                 data: [liab, equity],
-                backgroundColor: ['#f43f5e', '#f59e0b'],
-                borderWidth: 0,
-                hoverOffset: 10
+                backgroundColor: ['#ef4444', '#f59e0b'],
+                borderWidth: 0
             }]
         },
         options: {
-            cutout: '70%',
-            plugins: {
-                legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter' } } }
-            }
+            plugins: { legend: { position: 'bottom' } }
         }
     });
 
-    // Asset Breakdown (Simplified)
     const cash = Math.abs(values["110"] || 0);
-    const receivables = Math.abs(values["130"] || 0);
-    const inventory = Math.abs(values["140"] || 0);
-    const fixedAssets = Math.abs(values["220"] || 0);
-    const other = Math.abs(values["270"] || 0) - (cash + receivables + inventory + fixedAssets);
+    const rec = Math.abs(values["130"] || 0);
+    const inv = Math.abs(values["140"] || 0);
+    const fixed = Math.abs(values["220"] || 0);
 
     assetsChart = new Chart(ctxAssets, {
         type: 'bar',
         data: {
-            labels: ['Tiền', 'Phải thu', 'Tồn kho', 'TSCĐ', 'Khác'],
+            labels: ['Tiền', 'Phải thu', 'Tồn kho', 'TSCĐ'],
             datasets: [{
                 label: 'Giá trị',
-                data: [cash, receivables, inventory, fixedAssets, Math.max(0, other)],
-                backgroundColor: '#3b82f6',
-                borderRadius: 8
+                data: [cash, rec, inv, fixed],
+                backgroundColor: '#2563eb',
+                borderRadius: 4
             }]
         },
         options: {
-            scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-            },
+            scales: { y: { beginAtZero: true } },
             plugins: { legend: { display: false } }
         }
     });
@@ -139,20 +130,18 @@ function showNotification(message, type = 'success') {
     toast.className = `toast toast-${type}`;
     toast.innerText = message;
     container.appendChild(toast);
-    
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 500);
     }, 3000);
 }
 
-// Initial style for toast
+// Minimal notification style
 const style = document.createElement('style');
 style.textContent = `
     #notification-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-    .toast { background: #13171f; border: 1px solid var(--glass-border); color: white; padding: 12px 24px; border-radius: 12px; margin-top: 10px; transition: opacity 0.5s; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-    .toast-success { border-left: 4px solid var(--accent-emerald); }
-    .toast-error { border-left: 4px solid var(--accent-rose); }
+    .toast { background: white; border: 1px solid #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 8px; margin-top: 10px; transition: opacity 0.5s; box-shadow: var(--shadow-lg); border-left: 4px solid #2563eb; }
+    .toast-error { border-left-color: #ef4444; }
 `;
 document.head.appendChild(style);
 
