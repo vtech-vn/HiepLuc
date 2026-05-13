@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiepLuc - Bảng Cân Đối Kế Toán</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">📊</span>
+                <span class="logo-text">HiepLuc</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <span class="icon">🏠</span> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">📑</span> Báo Cáo
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">⚙️</span> Cài đặt
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>VAS Standard</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1>Bảng Cân Đối Kế Toán</h1>
+                    <p id="current-date">Cập nhật lúc: --/--/----</p>
+                </div>
+                <div class="actions">
+                    <button id="refresh-btn" class="btn btn-primary">
+                        <span class="icon">🔄</span> Làm mới dữ liệu
+                    </button>
+                </div>
+            </header>
+
+            <!-- Summary Cards -->
+            <section class="summary-grid">
+                <div class="card summary-card glass" id="card-assets">
+                    <div class="card-info">
+                        <span class="label">Tổng Tài Sản</span>
+                        <h2 class="value" id="total-assets">0</h2>
+                    </div>
+                    <div class="card-icon asset-icon">💰</div>
+                </div>
+                <div class="card summary-card glass" id="card-liabilities">
+                    <div class="card-info">
+                        <span class="label">Nợ Phải Trả</span>
+                        <h2 class="value" id="total-liabilities">0</h2>
+                    </div>
+                    <div class="card-icon liability-icon">💳</div>
+                </div>
+                <div class="card summary-card glass" id="card-equity">
+                    <div class="card-info">
+                        <span class="label">Vốn Chủ Sở Hữu</span>
+                        <h2 class="value" id="total-equity">0</h2>
+                    </div>
+                    <div class="card-icon equity-icon">🏗️</div>
+                </div>
+            </section>
+
+            <!-- Charts & Details -->
+            <div class="details-grid">
+                <!-- Balance Sheet Table -->
+                <div class="card table-card glass">
+                    <div class="card-header">
+                        <h3>Chi Tiết Bảng Cân Đối</h3>
+                    </div>
+                    <div class="table-container">
+                        <table id="balance-sheet-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã số</th>
+                                    <th>Chỉ tiêu</th>
+                                    <th class="text-right">Số cuối kỳ</th>
+                                    <th class="text-right">Số đầu kỳ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-body">
+                                <!-- Data rows will be injected here -->
+                                <tr>
+                                    <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Analysis Sidebar -->
+                <div class="analysis-column">
+                    <div class="card chart-card glass">
+                        <h3>Cấu Trúc Nguồn Vốn</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="capital-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card glass">
+                        <h3>Cơ Cấu Tài Sản</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="assets-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification system -->
+    <div id="notification-container"></div>
+
+    <script src="data_processor.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
