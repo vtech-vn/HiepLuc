@@ -300,8 +300,8 @@
         body.print-bw .header { border-bottom: 3px solid #333 !important; }
         body.print-bw .h-line-1, body.print-bw .h-line-2 { color: #000 !important; }
         body.print-bw .h-line-3 { color: #555 !important; }
-        body.print-bw .header-graphic { background: #f3f4f6 !important; border-left: 1px solid #ccc !important; }
-        body.print-bw .header-bg-img { display: none !important; }
+        body.print-bw .header-graphic { background: transparent !important; }
+        body.print-bw .header-bg-img { display: block !important; filter: grayscale(100%) brightness(1.75) contrast(0.7) !important; }
         body.print-bw .h-text-1 { color: #000 !important; font-weight: 800 !important; }
         body.print-bw .h-text-2 { color: #555 !important; }
 
@@ -327,7 +327,7 @@
         body.print-bw .totals-table tr:last-child { background-color: #e5e7eb !important; color: #000 !important; border-top: 2px solid #9ca3af !important; }
         body.print-bw .totals-table tr:last-child td { color: #000 !important; }
         body.print-bw .totals-table tr:last-child td:last-child { border-left: 1px solid #9ca3af !important; }
-        body.print-bw .signature-table th { border-bottom: 1px solid #9ca3af !important; border-right: 1px solid #9ca3af !important; background-color: #f9fafb !important; }
+        body.print-bw .signature-table th { border-bottom: 1px solid #9ca3af !important; border-right: 1px solid #9ca3af !important; background-color: #fff !important; }
         body.print-bw .signature-table td { border-bottom: 1px solid #9ca3af !important; }
 
         /* Footer */
@@ -620,13 +620,13 @@ function convertLogoToBase64() {
             if (isAppsScript()) {
                 // Apps Script: lấy logo server-side → base64, không bị CORS
                 google.script.run
-                    .withSuccessHandler(function(dataUrl) {
+                     .withSuccessHandler(function(dataUrl) {
                         if (dataUrl) {
                             document.getElementById('company-logo-container').innerHTML = '<img id="company-logo-img" src="' + dataUrl + '" height="80" style="object-fit: contain;">';
                         }
-                    })
-                    .withFailureHandler(function() { /* giữ SVG fallback */ })
-                    .getLogoBase64(cmp['Logo']);
+                     })
+                     .withFailureHandler(function() { /* giữ SVG fallback */ })
+                     .getLogoBase64(cmp['Logo']);
             } else {
                 // GitHub Pages: Dùng file logo nội bộ để đảm bảo tốc độ và không lỗi CORS
                 document.getElementById('company-logo-container').innerHTML = '<img id="company-logo-img" src="HiepLuc_logo.jpg" height="80" style="object-fit: contain;" onerror="handleLogoError(this)">';
