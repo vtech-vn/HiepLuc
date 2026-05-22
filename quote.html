@@ -231,6 +231,116 @@
         .footer-address strong { color: white; font-weight: 700; }
         .footer-address i { color: #E21F25; margin-right: 4px; }
         .page-meta { display: flex; justify-content: space-between; padding: 3px 25px 4px; font-size: 10px; color: #999; background: #f8f8f8; page-break-inside: avoid; break-inside: avoid; border-top: 1px solid #e0e0e0; }
+
+        /* ===== HỆ THỐNG NÚT GẠT CHUYỂN ĐỔI TRẮNG ĐEN ===== */
+        .toggle-bw-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            cursor: pointer;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #113458;
+            user-select: none;
+            transition: all 0.2s ease;
+            border: 1px solid #D1D5DB;
+        }
+        .toggle-bw-container:hover {
+            background: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+        }
+        .toggle-bw-container input {
+            display: none;
+        }
+        .toggle-bw-slider {
+            position: relative;
+            width: 32px;
+            height: 16px;
+            background-color: #ccc;
+            border-radius: 8px;
+            transition: .3s;
+        }
+        .toggle-bw-slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .3s;
+        }
+        .toggle-bw-container input:checked + .toggle-bw-slider {
+            background-color: #113458;
+        }
+        .toggle-bw-container input:checked + .toggle-bw-slider:before {
+            transform: translateX(16px);
+        }
+        .toggle-bw-label {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* ===== CHẾ ĐỘ IN TRẮNG ĐEN (print-bw) OVERRIDES ===== */
+        body.print-bw {
+            background-color: #f3f4f6 !important;
+        }
+
+        /* Logo */
+        body.print-bw svg path[fill="#113458"] { fill: #333 !important; }
+        body.print-bw svg text[fill="#113458"] { fill: #333 !important; }
+        body.print-bw #company-logo-img { filter: grayscale(100%) contrast(1.1) !important; }
+
+        /* Header */
+        body.print-bw .header { border-bottom: 3px solid #333 !important; }
+        body.print-bw .h-line-1, body.print-bw .h-line-2 { color: #000 !important; }
+        body.print-bw .h-line-3 { color: #555 !important; }
+        body.print-bw .header-graphic { background: #f3f4f6 !important; border-left: 1px solid #ccc !important; }
+        body.print-bw .header-bg-img { display: none !important; }
+        body.print-bw .h-text-1 { color: #000 !important; font-weight: 800 !important; }
+        body.print-bw .h-text-2 { color: #555 !important; }
+
+        /* Các hộp thông tin */
+        body.print-bw .box-badge { background-color: #333 !important; color: #fff !important; border: 1px solid #333 !important; }
+        body.print-bw .box-badge.red { background-color: #555 !important; border-color: #555 !important; }
+        body.print-bw .customer-table td:first-child, body.print-bw .meta-table td:first-child { color: #000 !important; }
+        body.print-bw .email-text { color: #000 !important; text-decoration: underline !important; }
+
+        /* Banner báo giá */
+        body.print-bw .quote-banner-icon { background-color: #333 !important; }
+        body.print-bw .quote-banner-title { color: #000 !important; background-color: #f3f4f6 !important; }
+        body.print-bw .quote-banner-desc { background-color: #fff !important; color: #000 !important; }
+
+        /* Bảng dữ liệu */
+        body.print-bw .data-table th { background-color: #e5e7eb !important; color: #000 !important; font-weight: 700 !important; border: 1px solid #9ca3af !important; }
+        body.print-bw .data-table td { border: 1px solid #9ca3af !important; color: #000 !important; }
+        body.print-bw .data-table tr:nth-child(even) { background-color: #f9fafb !important; }
+        body.print-bw .data-table tr[style*="background-color"] { background-color: #e5e7eb !important; }
+        body.print-bw .data-table tr[style*="background-color"] td { color: #000 !important; background-color: #e5e7eb !important; font-weight: 700 !important; }
+
+        /* Khối tổng tiền và chữ ký */
+        body.print-bw .totals-table tr:last-child { background-color: #e5e7eb !important; color: #000 !important; border-top: 2px solid #9ca3af !important; }
+        body.print-bw .totals-table tr:last-child td { color: #000 !important; }
+        body.print-bw .totals-table tr:last-child td:last-child { border-left: 1px solid #9ca3af !important; }
+        body.print-bw .signature-table th { border-bottom: 1px solid #9ca3af !important; border-right: 1px solid #9ca3af !important; background-color: #f9fafb !important; }
+        body.print-bw .signature-table td { border-bottom: 1px solid #9ca3af !important; }
+
+        /* Footer */
+        body.print-bw .unified-footer { background: #f3f4f6 !important; border: 1px solid #ccc !important; color: #000 !important; }
+        body.print-bw .footer-thankyou-icon { background-color: #333 !important; }
+        body.print-bw .footer-thankyou-text { color: #000 !important; }
+        body.print-bw .footer-contact-row { color: #333 !important; }
+        body.print-bw .footer-contact-row .sep { color: #ccc !important; }
+        body.print-bw .footer-address { color: #333 !important; }
+        body.print-bw .footer-address strong { color: #000 !important; }
+        body.print-bw .footer-address i { color: #333 !important; }
+        body.print-bw .qr-placeholder { border: 1px solid #ccc !important; }
+        body.print-bw #vietqr-img { filter: grayscale(100%) contrast(1.1) !important; }
     </style>
 <script>
 function handleLogoError(imgEl) {
@@ -260,6 +370,11 @@ function convertLogoToBase64() {
 
 <div class="export-toolbar no-print">
     <span id="loader">Đang tải...</span>
+    <label class="toggle-bw-container">
+        <input type="checkbox" id="toggle-bw" onchange="toggleBWMode(this.checked)">
+        <span class="toggle-bw-slider"></span>
+        <span class="toggle-bw-label">In Trắng Đen</span>
+    </label>
     <button onclick="openPDFPreview()" id="btn-pdf-preview"><i class="fa-solid fa-file-pdf"></i> PDF</button>
     <button onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
     <button onclick="window.print()"><i class="fa-solid fa-print"></i> In Máy</button>
@@ -273,6 +388,11 @@ function convertLogoToBase64() {
             Xem trước Báo Giá (A4)
             <span id="pdf-page-count"></span>
         </div>
+        <label class="toggle-bw-container" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.25);">
+            <input type="checkbox" id="toggle-bw-preview" onchange="toggleBWMode(this.checked)">
+            <span class="toggle-bw-slider"></span>
+            <span class="toggle-bw-label">In Trắng Đen</span>
+        </label>
         <button id="btn-download-pdf" onclick="downloadPDF()">
             <i class="fa-solid fa-download"></i> Tải PDF (Save as PDF)
         </button>
@@ -833,6 +953,26 @@ function convertLogoToBase64() {
         document.body.style.overflow = '';
         // Dọn dẹp để tiết kiệm bộ nhớ
         document.getElementById('pdf-preview-doc').innerHTML = '';
+    }
+
+    function toggleBWMode(isBW) {
+        if (isBW) {
+            document.body.classList.add('print-bw');
+        } else {
+            document.body.classList.remove('print-bw');
+        }
+
+        // Sync checkboxes
+        const cbMain = document.getElementById('toggle-bw');
+        const cbPreview = document.getElementById('toggle-bw-preview');
+        if (cbMain) cbMain.checked = isBW;
+        if (cbPreview) cbPreview.checked = isBW;
+
+        // If the preview is open, re-clone the updated page
+        const overlay = document.getElementById('pdf-preview-overlay');
+        if (overlay && overlay.classList.contains('active')) {
+            openPDFPreview();
+        }
     }
 
     function downloadPDF() {
