@@ -942,14 +942,16 @@ function convertLogoToBase64() {
                 const pageHeightPx = Math.round(297 * mmToPx);
                 const pageHeightPxDefensive = Math.round(270 * mmToPx); // Chiều cao an toàn phòng lề mặc định của Chrome
 
-                // Đo chiều cao thực tế của phần content và footer trong clone để tính ngắt trang
+                // Đo chiều cao thực tế của TOÀN BỘ trang (header + content + footer) để tính ngắt trang
+                const cloneHeader = clone.querySelector('.header');
                 const cloneContent = clone.querySelector('.content-wrap');
                 const cloneFooter = clone.querySelector('#pdf-footer');
                 if (cloneContent && cloneFooter) {
                     cloneContent.style.paddingBottom = '0px'; // Reset để đo chuẩn
+                    const headerH = cloneHeader ? cloneHeader.offsetHeight : 0;
                     const contentH = cloneContent.offsetHeight;
                     const footerH = cloneFooter.offsetHeight;
-                    const totalH = contentH + footerH;
+                    const totalH = headerH + contentH + footerH; // Phải tính cả header!
 
                     pageCount = Math.max(1, Math.ceil(totalH / pageHeightPxDefensive));
                     const targetHDefensive = pageCount * pageHeightPxDefensive;
@@ -1025,9 +1027,11 @@ function convertLogoToBase64() {
         const mmToPx = width / 210;
         const pageHeightPxDefensive = Math.round(270 * mmToPx); // Chiều cao an toàn phòng lề mặc định của Chrome
 
+        const pageHeader = pageWrapper.querySelector('.header');
+        const headerH = pageHeader ? pageHeader.offsetHeight : 0;
         const contentH = contentWrap.offsetHeight;
         const footerH = pdfFooter.offsetHeight;
-        const totalH = contentH + footerH;
+        const totalH = headerH + contentH + footerH; // Phải tính cả header!
 
         const pageCount = Math.max(1, Math.ceil(totalH / pageHeightPxDefensive));
         const targetHDefensive = pageCount * pageHeightPxDefensive;
