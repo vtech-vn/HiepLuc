@@ -32,26 +32,23 @@
             .export-toolbar, #pdf-preview-overlay { display: none !important; } 
             html, body { width: 210mm; margin: 0; padding: 0; background: white; }
             body { background: white; padding: 0; margin: 0; } 
-            /* Trang A4: sử dụng flex để footer luôn nằm ở đáy trang của trang cuối cùng */
+            /* Trang A4: sử dụng block để Chrome ngắt trang an toàn không bị đè chữ ký */
             .page {
                 box-shadow: none;
                 margin: 0;
                 width: 210mm;
                 min-height: 270mm !important; /* Dùng chiều cao an toàn 270mm để tránh bị tràn trang khi in mặc định */
-                display: flex !important;
-                flex-direction: column !important;
+                display: block !important;
             }
-            /* Content chiếm toàn bộ không gian còn lại, dùng block layout bên trong để tự động ngắt trang hoàn hảo */
+            /* Content chiếm toàn bộ không gian còn lại */
             .content-wrap { 
-                flex: 1 0 auto !important; 
                 display: block !important;
                 padding-bottom: 0px; /* Sẽ được tính toán động bằng JS */
             }
-            /* Footer luôn nằm ở đáy của trang cuối cùng nhờ margin-top: auto */
+            /* Footer luôn nằm ở đáy của trang cuối cùng nhờ padding-bottom của content-wrap đã đẩy xuống */
             #pdf-footer { 
                 display: block !important;
-                margin-top: auto !important; 
-                flex-shrink: 0 !important; 
+                margin-top: 0 !important; 
                 page-break-inside: avoid !important; 
                 break-inside: avoid !important;
             }
