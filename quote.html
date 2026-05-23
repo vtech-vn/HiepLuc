@@ -37,7 +37,7 @@
                 box-shadow: none;
                 margin: 0;
                 width: 210mm;
-                min-height: 297mm !important;
+                min-height: 270mm !important; /* Dùng chiều cao an toàn 270mm để tránh bị tràn trang khi in mặc định */
                 display: flex !important;
                 flex-direction: column !important;
             }
@@ -937,8 +937,10 @@ function convertLogoToBase64() {
         // Đợi layout xong rồi tính số trang
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+                let pageCount = 1;
                 const mmToPx = previewDoc.offsetWidth / 210;
                 const pageHeightPx = Math.round(297 * mmToPx);
+                const pageHeightPxDefensive = Math.round(270 * mmToPx); // Chiều cao an toàn phòng lề mặc định của Chrome
 
                 // Đo chiều cao thực tế của phần content và footer trong clone để tính ngắt trang
                 const cloneContent = clone.querySelector('.content-wrap');
@@ -949,17 +951,17 @@ function convertLogoToBase64() {
                     const footerH = cloneFooter.offsetHeight;
                     const totalH = contentH + footerH;
 
-                    const pageCount = Math.max(1, Math.ceil(totalH / pageHeightPx));
-                    const targetH = pageCount * pageHeightPx;
-                    const padH = targetH - totalH;
+                    pageCount = Math.max(1, Math.ceil(totalH / pageHeightPxDefensive));
+                    const targetHDefensive = pageCount * pageHeightPxDefensive;
+                    const padH = targetHDefensive - totalH;
 
                     if (padH > 0) {
                         cloneContent.style.paddingBottom = padH + 'px';
                     }
 
-                    // Cập nhật wrapper height theo targetH để gradient vẽ các trang đều nhau
+                    // Cập nhật wrapper height theo chiều cao vật lý (297mm) để hiển thị đường kẻ ngắt trang A4 chuẩn xác
                     const wrapper = document.getElementById('pdf-preview-content-wrapper');
-                    wrapper.style.height = targetH + 'px';
+                    wrapper.style.height = (pageCount * pageHeightPx) + 'px';
 
                     // Cập nhật thông tin số trang
                     if (pageCountEl) {
@@ -1021,15 +1023,15 @@ function convertLogoToBase64() {
 
         const width = pageWrapper.offsetWidth;
         const mmToPx = width / 210;
-        const pageHeightPx = Math.round(297 * mmToPx);
+        const pageHeightPxDefensive = Math.round(270 * mmToPx); // Chiều cao an toàn phòng lề mặc định của Chrome
 
         const contentH = contentWrap.offsetHeight;
         const footerH = pdfFooter.offsetHeight;
         const totalH = contentH + footerH;
 
-        const pageCount = Math.max(1, Math.ceil(totalH / pageHeightPx));
-        const targetH = pageCount * pageHeightPx;
-        const padH = targetH - totalH;
+        const pageCount = Math.max(1, Math.ceil(totalH / pageHeightPxDefensive));
+        const targetHDefensive = pageCount * pageHeightPxDefensive;
+        const padH = targetHDefensive - totalH;
 
         if (padH > 0) {
             contentWrap.style.setProperty('padding-bottom', padH + 'px', 'important');
