@@ -22,7 +22,7 @@
         @media print { 
             @page {
                 size: A4 portrait;
-                margin: 12mm 0 15mm 0;
+                margin: 0 !important; /* Ép margin 0 để JS kiểm soát hoàn toàn khoảng cách mép */
             }
             @page :first {
                 margin: 0;
@@ -37,7 +37,7 @@
                 box-shadow: none;
                 margin: 0;
                 width: 210mm;
-                min-height: 270mm !important; /* Dùng chiều cao an toàn 270mm để tránh bị tràn trang khi in mặc định */
+                min-height: 297mm !important; /* A4 chuẩn */
                 display: block !important;
             }
             /* Content chiếm toàn bộ không gian còn lại */
@@ -937,7 +937,7 @@ function convertLogoToBase64() {
                 let pageCount = 1;
                 const mmToPx = previewDoc.offsetWidth / 210;
                 const pageHeightPx = Math.round(297 * mmToPx);
-                const pageHeightPxDefensive = Math.round(270 * mmToPx); // Chiều cao an toàn phòng lề mặc định của Chrome
+                const bottomMarginPx = Math.round(12 * mmToPx); // Khoảng cách an toàn cách mép dưới 12mm
 
                 // Đo chiều cao thực tế của TOÀN BỘ trang (header + content + footer) để tính ngắt trang
                 const cloneHeader = clone.querySelector('.header');
@@ -950,9 +950,10 @@ function convertLogoToBase64() {
                     const footerH = cloneFooter.offsetHeight;
                     const totalH = headerH + contentH + footerH; // Phải tính cả header!
 
-                    pageCount = Math.max(1, Math.ceil(totalH / pageHeightPxDefensive));
-                    const targetHDefensive = pageCount * pageHeightPxDefensive;
-                    const padH = targetHDefensive - totalH;
+                    // Tính số trang sao cho tổng chiều cao (kèm lề dưới) vừa vặn
+                    pageCount = Math.max(1, Math.ceil((totalH + bottomMarginPx) / pageHeightPx));
+                    const targetH = (pageCount * pageHeightPx) - bottomMarginPx;
+                    const padH = targetH - totalH;
 
                     if (padH > 0) {
                         cloneContent.style.paddingBottom = padH + 'px';
@@ -1022,7 +1023,8 @@ function convertLogoToBase64() {
 
         const width = pageWrapper.offsetWidth;
         const mmToPx = width / 210;
-        const pageHeightPxDefensive = Math.round(270 * mmToPx); // Chiều cao an toàn phòng lề mặc định của Chrome
+        const pageHeightPx = Math.round(297 * mmToPx);
+        const bottomMarginPx = Math.round(12 * mmToPx); // Khoảng cách an toàn cách mép dưới 12mm
 
         const pageHeader = pageWrapper.querySelector('.header');
         const headerH = pageHeader ? pageHeader.offsetHeight : 0;
@@ -1030,9 +1032,9 @@ function convertLogoToBase64() {
         const footerH = pdfFooter.offsetHeight;
         const totalH = headerH + contentH + footerH; // Phải tính cả header!
 
-        const pageCount = Math.max(1, Math.ceil(totalH / pageHeightPxDefensive));
-        const targetHDefensive = pageCount * pageHeightPxDefensive;
-        const padH = targetHDefensive - totalH;
+        const pageCount = Math.max(1, Math.ceil((totalH + bottomMarginPx) / pageHeightPx));
+        const targetH = (pageCount * pageHeightPx) - bottomMarginPx;
+        const padH = targetH - totalH;
 
         if (padH > 0) {
             contentWrap.style.setProperty('padding-bottom', padH + 'px', 'important');
