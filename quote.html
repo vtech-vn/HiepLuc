@@ -45,7 +45,7 @@
             .content-wrap { 
                 flex: 1 0 auto !important; 
                 display: block !important;
-                padding-bottom: 120px !important; /* Khoảng đệm an toàn lớn hơn chiều cao của footer (~106px) để tránh đè chữ ký */
+                padding-bottom: 0px; /* Sẽ được tính toán động bằng JS */
             }
             /* Footer luôn nằm ở đáy của trang cuối cùng nhờ margin-top: auto */
             #pdf-footer { 
@@ -937,19 +937,34 @@ function convertLogoToBase64() {
         // Đợi layout xong rồi tính số trang
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                const contentH = previewDoc.offsetHeight;    // px
-                // 297mm tính theo px: dùng offsetWidth của previewDoc so với 210mm
                 const mmToPx = previewDoc.offsetWidth / 210;
                 const pageHeightPx = Math.round(297 * mmToPx);
-                const pageCount = Math.max(1, Math.ceil(contentH / pageHeightPx));
 
-                // Cập nhật wrapper height để gradient kẻ đúng
-                const wrapper = document.getElementById('pdf-preview-content-wrapper');
-                wrapper.style.height = contentH + 'px';
+                // Đo chiều cao thực tế của phần content và footer trong clone để tính ngắt trang
+                const cloneContent = clone.querySelector('.content-wrap');
+                const cloneFooter = clone.querySelector('#pdf-footer');
+                if (cloneContent && cloneFooter) {
+                    cloneContent.style.paddingBottom = '0px'; // Reset để đo chuẩn
+                    const contentH = cloneContent.offsetHeight;
+                    const footerH = cloneFooter.offsetHeight;
+                    const totalH = contentH + footerH;
 
-                // Cập nhật thông tin số trang
-                if (pageCountEl) {
-                    pageCountEl.textContent = '— ' + pageCount + ' trang A4';
+                    const pageCount = Math.max(1, Math.ceil(totalH / pageHeightPx));
+                    const targetH = pageCount * pageHeightPx;
+                    const padH = targetH - totalH;
+
+                    if (padH > 0) {
+                        cloneContent.style.paddingBottom = padH + 'px';
+                    }
+
+                    // Cập nhật wrapper height theo targetH để gradient vẽ các trang đều nhau
+                    const wrapper = document.getElementById('pdf-preview-content-wrapper');
+                    wrapper.style.height = targetH + 'px';
+
+                    // Cập nhật thông tin số trang
+                    if (pageCountEl) {
+                        pageCountEl.textContent = '— ' + pageCount + ' trang A4';
+                    }
                 }
 
                 // Thêm nhãn số trang bên trái
@@ -992,6 +1007,42 @@ function convertLogoToBase64() {
             openPDFPreview();
         }
     }
+
+    let origPaddingBottom = '';
+
+    window.addEventListener('beforeprint', () => {
+        const pageWrapper = document.getElementById('page-wrapper');
+        const contentWrap = pageWrapper?.querySelector('.content-wrap');
+        const pdfFooter = document.getElementById('pdf-footer');
+        if (!pageWrapper || !contentWrap || !pdfFooter) return;
+
+        origPaddingBottom = contentWrap.style.paddingBottom;
+        contentWrap.style.setProperty('padding-bottom', '0px', 'important');
+
+        const width = pageWrapper.offsetWidth;
+        const mmToPx = width / 210;
+        const pageHeightPx = Math.round(297 * mmToPx);
+
+        const contentH = contentWrap.offsetHeight;
+        const footerH = pdfFooter.offsetHeight;
+        const totalH = contentH + footerH;
+
+        const pageCount = Math.max(1, Math.ceil(totalH / pageHeightPx));
+        const targetH = pageCount * pageHeightPx;
+        const padH = targetH - totalH;
+
+        if (padH > 0) {
+            contentWrap.style.setProperty('padding-bottom', padH + 'px', 'important');
+        }
+    });
+
+    window.addEventListener('afterprint', () => {
+        const pageWrapper = document.getElementById('page-wrapper');
+        const contentWrap = pageWrapper?.querySelector('.content-wrap');
+        if (contentWrap) {
+            contentWrap.style.setProperty('padding-bottom', origPaddingBottom);
+        }
+    });
 
     function downloadPDF() {
         const quoteNo = document.getElementById('q-no').textContent.trim() || 'BaoGia';
