@@ -1317,6 +1317,31 @@ function convertLogoToBase64() {
             // Loại bỏ khoảng trắng thừa ở cuối mỗi trang
             const TABLE_MARGIN_BOT = MARGIN_BOT;
 
+            
+            // Tính toán giá trị padding cho bảng từ URL
+            let padY = 2; // mặc định
+            const rpValue = await resolveRowPadding();
+            if (rpValue) {
+                const rpPx = parseFloat(rpValue);
+                if (!isNaN(rpPx) && rpPx >= 0) {
+                    padY = rpPx / 3; // chuyển đổi tương đối px sang mm cho PDF
+                }
+            }
+
+            // Tính toán độ rộng cột mô tả và cột ghi chú từ URL
+            let descW = 82; // mặc định
+            let noteW = 20; // mặc định
+            const noteWidthValue = await resolveNoteWidth();
+            if (noteWidthValue) {
+                const notePct = parseFloat(noteWidthValue);
+                if (!isNaN(notePct) && notePct >= 10 && notePct <= 45) {
+                    const descPct = 51 - (notePct - 10);
+                    const totalPct = descPct + notePct;
+                    descW = (descPct / totalPct) * 102;
+                    noteW = (notePct / totalPct) * 102;
+                }
+            }
+
             const tableRows = [];
             document.querySelectorAll('#table-body tr').forEach(tr => {
                 const tds = tr.querySelectorAll('td');
@@ -1346,7 +1371,7 @@ function convertLogoToBase64() {
                 theme: 'grid',
                 styles: {
                     font: 'Roboto', fontSize: 7.5,
-                    cellPadding: { top: 2, bottom: 2, left: 2, right: 2 },
+                    cellPadding: { top: padY, bottom: padY, left: 2, right: 2 },
                     lineColor: C_GRAY, lineWidth: 0.3,
                     textColor: C_DARK, overflow: 'linebreak'
                 },
@@ -1358,12 +1383,12 @@ function convertLogoToBase64() {
                 alternateRowStyles: { fillColor: C_BG },
                 columnStyles: {
                     0: { halign: 'center', cellWidth: 9,  fontStyle: 'bold' },
-                    1: { halign: 'left',   cellWidth: 82 },
+                    1: { halign: 'left',   cellWidth: descW },
                     2: { halign: 'center', cellWidth: 12 },
                     3: { halign: 'center', cellWidth: 12, fontStyle: 'bold' },
                     4: { halign: 'right',  cellWidth: 25 },
                     5: { halign: 'right',  cellWidth: 30 },
-                    6: { halign: 'left',   cellWidth: 20, fontSize: 6.5, textColor: [85,85,85] }
+                    6: { halign: 'left',   cellWidth: noteW, fontSize: 6.5, textColor: [85,85,85] }
                 }
             });
 
