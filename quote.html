@@ -456,9 +456,18 @@ function handleLogoError(imgEl) {
         document.getElementById('loader').style.display = 'inline-block';
     }
     async function fetchViaAppsScript(quoteId) {
-        const res = await fetch(`${APPS_SCRIPT_URL}?api=quoteData&quote_id=${quoteId}`).then(r => r.json());
-        if (!res.success) throw new Error(res.error || 'Lỗi tải dữ liệu từ server');
-        return res.data;
+        if (isAppsScript()) {
+            return new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(resolve)
+                    .withFailureHandler(function(err) { reject(new Error(err.message || 'Lỗi server Apps Script')); })
+                    .getSheetData(quoteId);
+            });
+        } else {
+            const res = await fetch(`${APPS_SCRIPT_URL}?api=quoteData&quote_id=${quoteId}`).then(r => r.json());
+            if (!res.success) throw new Error(res.error || 'Lỗi tải dữ liệu từ server');
+            return res.data;
+        }
     }
     
     function applyCompanyProfile() {
