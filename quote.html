@@ -447,6 +447,10 @@ function handleLogoError(imgEl) {
         return (typeof google !== 'undefined' && google.script && google.script.run);
     }
 
+    function formatCurrency(ns) {
+        return (parseFloat(ns) || 0).toLocaleString('vi-VN');
+    }
+
     function showLoader(text) {
         document.getElementById('loader').textContent = text;
         document.getElementById('loader').style.display = 'inline-block';
