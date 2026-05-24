@@ -1070,7 +1070,7 @@ function convertLogoToBase64() {
             const PAGE_W   = 210;
             const PAGE_H   = 297;
             const MARGIN_X = 5;
-            const MARGIN_TOP = 10;
+            const MARGIN_TOP = 5;
             const MARGIN_BOT = 10;
             const CONTENT_W = PAGE_W - MARGIN_X * 2; // 190 mm
 
@@ -1146,13 +1146,13 @@ function convertLogoToBase64() {
                 const botY = MARGIN_TOP + HEADER_H;
                 
                 doc.setFillColor(209, 213, 219); // Xám
-                fillPolygon(doc, [{x: 104, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 84, y: botY}]);
+                fillPolygon(doc, [{x: 134, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 114, y: botY}]);
                 
                 doc.setFillColor(...C_RED); // Đỏ
-                fillPolygon(doc, [{x: 116, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 96, y: botY}]);
+                fillPolygon(doc, [{x: 146, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 126, y: botY}]);
                 
                 doc.setFillColor(...C_NAVY); // Xanh đen
-                fillPolygon(doc, [{x: 128, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 108, y: botY}]);
+                fillPolygon(doc, [{x: 158, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 138, y: botY}]);
             } else {
                 doc.setFillColor(220, 220, 220);
                 doc.rect(68, MARGIN_TOP, PAGE_W - MARGIN_X - 68, HEADER_H, 'F');
@@ -1314,9 +1314,8 @@ function convertLogoToBase64() {
             const FOOTER_H     = 18;
             const PAGE_META_H  = 5;
             const FOOTER_TOTAL = FOOTER_H + PAGE_META_H;
-            // Bottom margin của autoTable phải chừa đủ chỗ cho footer ở trang cuối
-            // Dùng số lớn để autoTable KHÔNG tự ngắt vào vùng footer
-            const TABLE_MARGIN_BOT = MARGIN_BOT + FOOTER_TOTAL + 6;
+            // Loại bỏ khoảng trắng thừa ở cuối mỗi trang
+            const TABLE_MARGIN_BOT = MARGIN_BOT;
 
             const tableRows = [];
             document.querySelectorAll('#table-body tr').forEach(tr => {
@@ -1334,7 +1333,7 @@ function convertLogoToBase64() {
                 } else if (tds.length > 0) {
                     tableRows.push([{ content: tds[0].innerText.trim(), colSpan: 7, styles: {
                         fontStyle: 'bold', fillColor: isBW ? [220,220,220] : [237,242,247],
-                        textColor: navy, fontSize: 8, halign: 'left'
+                        textColor: navy, fontSize: 8, halign: 'center'
                     }}]);
                 }
             });
