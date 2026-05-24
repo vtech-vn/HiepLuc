@@ -443,6 +443,10 @@ function handleLogoError(imgEl) {
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec";
     
+    function isAppsScript() {
+        return (typeof google !== 'undefined' && google.script && google.script.run);
+    }
+
     function showLoader(text) {
         document.getElementById('loader').textContent = text;
         document.getElementById('loader').style.display = 'inline-block';
