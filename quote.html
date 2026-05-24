@@ -540,7 +540,7 @@ function convertLogoToBase64() {
         <div class="avoid-break" style="padding: 0 25px;">
             <div class="unified-footer">
                 <div class="qr-placeholder">
-                    <img id="vietqr-img" src="https://img.vietqr.io/image/ICB-117000018926-qr_only.png" width="58" height="58" alt="VietQR">
+                    <img id="vietqr-img" src="https://img.vietqr.io/image/ICB-117000018926-qr_only.png" width="58" height="58" alt="VietQR" crossorigin="anonymous">
                 </div>
                 <div class="footer-right">
                     <div class="footer-thankyou">
@@ -1139,20 +1139,20 @@ function convertLogoToBase64() {
             // ================================================================
             const HEADER_H = 28;
 
-            // Dùng canvas header đã render sẵn từ trang (hình thang xéo)
-            const headerBgImg = document.getElementById('header-bg-img');
-            if (headerBgImg && headerBgImg.src && headerBgImg.src.startsWith('data:')) {
-                // Vùng nền bên phải (từ 55mm đến 200mm, cao HEADER_H)
-                doc.addImage(headerBgImg.src, 'PNG', 55, MARGIN_TOP, PAGE_W - MARGIN_X - 55, HEADER_H);
-            } else if (!isBW) {
-                // Fallback: vẽ hình thang đơn giản bằng lines()
-                doc.setFillColor(...C_NAVY);
-                fillPolygon(doc, [
-                    {x: 68, y: MARGIN_TOP},
-                    {x: PAGE_W - MARGIN_X, y: MARGIN_TOP},
-                    {x: PAGE_W - MARGIN_X, y: MARGIN_TOP + HEADER_H},
-                    {x: 58, y: MARGIN_TOP + HEADER_H}
-                ]);
+            // Vẽ nền Header: Xám, Đỏ, Xanh Đen giống web
+            if (!isBW) {
+                const rightX = PAGE_W - MARGIN_X;
+                const topY = MARGIN_TOP;
+                const botY = MARGIN_TOP + HEADER_H;
+                
+                doc.setFillColor(209, 213, 219); // Xám
+                fillPolygon(doc, [{x: 54, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 44, y: botY}]);
+                
+                doc.setFillColor(...C_RED); // Đỏ
+                fillPolygon(doc, [{x: 61, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 51, y: botY}]);
+                
+                doc.setFillColor(...C_NAVY); // Xanh đen
+                fillPolygon(doc, [{x: 68, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 58, y: botY}]);
             } else {
                 doc.setFillColor(220, 220, 220);
                 doc.rect(68, MARGIN_TOP, PAGE_W - MARGIN_X - 68, HEADER_H, 'F');
@@ -1194,7 +1194,7 @@ function convertLogoToBase64() {
             const textX = MARGIN_X + 28;
             doc.setFontSize(7); doc.setFont('Roboto', 'bold');
             doc.setTextColor(...navy);
-            doc.text('CTY TNHH CO KHI CHE TAO TM', textX, MARGIN_TOP + 7);
+            doc.text('CTY TNHH CƠ KHÍ CHẾ TẠO TM', textX, MARGIN_TOP + 7);
 
             doc.setFontSize(15); doc.setFont('Roboto', 'bold');
             doc.setTextColor(...navy);
@@ -1202,12 +1202,12 @@ function convertLogoToBase64() {
 
             doc.setFontSize(7); doc.setFont('Roboto', 'italic');
             doc.setTextColor(...red);
-            doc.text('Hiep luc gia tri thuc cho cuoc song', textX, MARGIN_TOP + 19);
+            doc.text('Hiệp lực giá trị thực cho cuộc sống', textX, MARGIN_TOP + 19);
 
             // --- "BÁO GIÁ" bên phải ---
             doc.setFontSize(20); doc.setFont('Roboto', 'normal');
             doc.setTextColor(...C_WHITE);
-            doc.text('BAO GIA', PAGE_W - MARGIN_X - 5, MARGIN_TOP + 14, { align: 'right' });
+            doc.text('BÁO GIÁ', PAGE_W - MARGIN_X - 5, MARGIN_TOP + 14, { align: 'right' });
             doc.setFontSize(9); doc.setFont('Roboto', 'italic');
             doc.text('QUOTATION', PAGE_W - MARGIN_X - 5, MARGIN_TOP + 20, { align: 'right' });
 
@@ -1233,7 +1233,7 @@ function convertLogoToBase64() {
             doc.setFillColor(...navy);
             doc.roundedRect(COL1_X, currentY, 52, 5.5, 1.5, 1.5, 'F');
             doc.setTextColor(...C_WHITE); doc.setFontSize(6.5); doc.setFont('Roboto', 'bold');
-            doc.text('KINH GUI DEN KHACH HANG', COL1_X + 2, currentY + 3.8);
+            doc.text('KÍNH GỬI ĐẾN KHÁCH HÀNG', COL1_X + 2, currentY + 3.8);
 
             const custData = [
                 ['Mr/Ms:', getText('c-contact')],
@@ -1254,11 +1254,11 @@ function convertLogoToBase64() {
             doc.setDrawColor(...C_GRAY);
             doc.roundedRect(COL2_X, currentY, COL2_W, INFO_H, 2, 2, 'S');
             const metaData = [
-                ['Ngay lap',        getText('q-date')],
-                ['Gia tri toi ngay', getText('q-val-date')],
-                ['So bao gia',       getText('q-no')],
-                ['Nguoi phu trach',  getText('q-pic')],
-                ['DT lien lac',      getText('q-pic-phone')],
+                ['Ngày lập',        getText('q-date')],
+                ['Giá trị tới ngày', getText('q-val-date')],
+                ['Số báo giá',       getText('q-no')],
+                ['Người phụ trách',  getText('q-pic')],
+                ['ĐT liên lạc',      getText('q-pic-phone')],
                 ['Email',            getText('q-pic-email')]
             ];
             const metaRowH = INFO_H / metaData.length;
@@ -1292,7 +1292,7 @@ function convertLogoToBase64() {
             doc.setDrawColor(...C_GRAY); doc.setFillColor(...C_WHITE);
             doc.roundedRect(MARGIN_X + 10, currentY, 24, BANNER_H, 0, 0, 'FD');
             doc.setFont('Roboto', 'bold'); doc.setTextColor(...navy); doc.setFontSize(8.5);
-            doc.text('BAO GIA', MARGIN_X + 13, currentY + 6.2);
+            doc.text('BÁO GIÁ', MARGIN_X + 13, currentY + 6.2);
             doc.setDrawColor(...C_GRAY);
             doc.line(MARGIN_X + 34, currentY, MARGIN_X + 34, currentY + BANNER_H);
 
@@ -1338,12 +1338,12 @@ function convertLogoToBase64() {
             doc.autoTable({
                 startY: currentY,
                 margin: { left: MARGIN_X, right: MARGIN_X, top: MARGIN_TOP + 2, bottom: TABLE_MARGIN_BOT },
-                head: [['STT', 'Noi dung / Cong Viec', 'DVT', 'SL', 'Don gia (VND)', 'Thanh Tien (VND)', 'Ghi Chu']],
+                head: [['STT', 'Nội dung / Công Việc', 'ĐVT', 'SL', 'Đơn giá (VNĐ)', 'Thành Tiền (VNĐ)', 'Ghi Chú']],
                 body: tableRows,
                 theme: 'grid',
                 styles: {
                     font: 'Roboto', fontSize: 7.5,
-                    cellPadding: { top: 2.5, bottom: 2.5, left: 2, right: 2 },
+                    cellPadding: { top: 2, bottom: 2, left: 2, right: 2 },
                     lineColor: C_GRAY, lineWidth: 0.3,
                     textColor: C_DARK, overflow: 'linebreak'
                 },
@@ -1388,7 +1388,7 @@ function convertLogoToBase64() {
             doc.setFillColor(...navy);
             doc.roundedRect(MARGIN_X, currentY, 64, 5, 1.5, 1.5, 'F');
             doc.setTextColor(...C_WHITE); doc.setFontSize(6); doc.setFont('Roboto', 'bold');
-            doc.text('GHI CHU DAC BIET CUA KHACH HANG (NEU CO)', MARGIN_X + 2, currentY + 3.5);
+            doc.text('GHI CHÚ ĐẶC BIỆT CỦA KHÁCH HÀNG (NẾU CÓ)', MARGIN_X + 2, currentY + 3.5);
 
             const specialNote = document.getElementById('c-special-note');
             if (specialNote && specialNote.textContent.trim()) {
@@ -1399,9 +1399,9 @@ function convertLogoToBase64() {
 
             // Tổng tiền
             const totalsData = [
-                ['Tong tien (VND)', getText('t-subtotal')],
+                ['Tổng tiền (VNĐ)', getText('t-subtotal')],
                 ['VAT (8%)',        getText('t-vat')],
-                ['TONG CONG',       getText('t-total')]
+                ['TỔNG CỘNG',       getText('t-total')]
             ];
             const TOT_ROW_H = BOTTOM_H / 3;
             doc.setDrawColor(...C_GRAY);
@@ -1438,7 +1438,7 @@ function convertLogoToBase64() {
             doc.setFillColor(...red);
             doc.roundedRect(MARGIN_X, currentY, 22, 5, 1.5, 1.5, 'F');
             doc.setTextColor(...C_WHITE); doc.setFontSize(6.5); doc.setFont('Roboto', 'bold');
-            doc.text('GHI CHU', MARGIN_X + 2, currentY + 3.5);
+            doc.text('GHI CHÚ', MARGIN_X + 2, currentY + 3.5);
             const qNote = document.getElementById('q-note');
             if (qNote && qNote.textContent.trim()) {
                 doc.setFont('Roboto', 'italic'); doc.setTextColor(...C_DARK); doc.setFontSize(7.5);
@@ -1451,8 +1451,8 @@ function convertLogoToBase64() {
             doc.roundedRect(TOT_X, currentY, COL_TOTAL_W, NOTE2_H, 2, 2, 'S');
             doc.line(TOT_X, currentY + 7, TOT_X + COL_TOTAL_W, currentY + 7);
             doc.setFont('Roboto', 'normal'); doc.setTextColor(...C_DARK); doc.setFontSize(8);
-            doc.text('KT Giam doc', TOT_X + COL_TOTAL_W / 2, currentY + 5, { align: 'center' });
-            doc.text('Ky ten', TOT_X + COL_TOTAL_W / 2, currentY + 12, { align: 'center' });
+            doc.text('KT Giám đốc', TOT_X + COL_TOTAL_W / 2, currentY + 5, { align: 'center' });
+            doc.text('Ký tên', TOT_X + COL_TOTAL_W / 2, currentY + 12, { align: 'center' });
 
             currentY += NOTE2_H + 4;
 
@@ -1508,7 +1508,7 @@ function convertLogoToBase64() {
 
             doc.setTextColor(...(isBW ? [0,0,0] : C_GOLD));
             doc.setFontSize(8); doc.setFont('Roboto', 'bold');
-            doc.text('Cam on su hop tac cua quy khach hang !', ftx + 6.5, usedFooterY + 5.5);
+            doc.text('Cảm ơn sự hợp tác của quý khách hàng !', ftx + 6.5, usedFooterY + 5.5);
 
             // Contact
             doc.setTextColor(...ftColor); doc.setFontSize(6.8); doc.setFont('Roboto', 'normal');
@@ -1523,7 +1523,7 @@ function convertLogoToBase64() {
                 document.getElementById('f-bank').textContent.trim() :
                 'MST: 0304237988  |  STK: 117000018926 - NH CONG THUONG, CN DONG SAI GON';
             doc.setFontSize(6.5); doc.setTextColor(...ftColor);
-            doc.text('Dia chi: ' + addrRaw, ftx, usedFooterY + 12.5);
+            doc.text('Địa chỉ: ' + addrRaw, ftx, usedFooterY + 12.5);
             doc.text(bankRaw, ftx, usedFooterY + 16);
 
             // Page-meta strip
@@ -1543,7 +1543,7 @@ function convertLogoToBase64() {
                 doc.setPage(p);
                 doc.setFontSize(6.5); doc.setFont('Roboto', 'normal');
                 doc.setTextColor(160, 160, 160);
-                doc.text('Trang ' + p + '/' + totalPages, PAGE_W - MARGIN_X, MARGIN_TOP - 3, { align: 'right' });
+                doc.text('Trang ' + p + ' / ' + totalPages, PAGE_W - MARGIN_X, MARGIN_TOP - 3, { align: 'right' });
             }
 
             // Xuất file
