@@ -787,16 +787,13 @@ function convertLogoToBase64() {
             }
 
 
-            // Áp dụng khoảng cách footer (dt) từ URL param &dt=X (px)
+            // Lấy dt lưu thành biến toàn cục để bypass auto padding
+            window.MANUAL_DT = undefined;
             const dtValue = await resolveFooterDistance();
             if (dtValue) {
                 const dtPx = parseFloat(dtValue);
                 if (!isNaN(dtPx)) {
-                    const footerEl = document.getElementById('pdf-footer');
-                    if (footerEl) {
-                        // Thêm class avoid-break nếu lỡ in cắt giữa chừng (mặc dù footer đã có rồi)
-                        footerEl.style.marginTop = dtPx + 'px';
-                    }
+                    window.MANUAL_DT = dtPx;
                 }
             }
 
@@ -981,13 +978,20 @@ function convertLogoToBase64() {
                     const footerH = cloneFooter.offsetHeight;
                     const totalH = headerH + contentH + footerH; // Phải tính cả header!
 
-                    // Tính số trang sao cho tổng chiều cao (kèm lề dưới) vừa vặn
-                    pageCount = Math.max(1, Math.ceil((totalH + bottomMarginPx) / pageHeightPx));
-                    const targetH = (pageCount * pageHeightPx) - bottomMarginPx;
-                    const padH = targetH - totalH;
+                    if (typeof window.MANUAL_DT !== 'undefined') {
+                        cloneContent.style.paddingBottom = window.MANUAL_DT + 'px';
+                        // Tính lại pageCount sau khi gán manual padding
+                        pageCount = Math.max(1, Math.ceil((totalH + window.MANUAL_DT + bottomMarginPx) / pageHeightPx));
+                    } else {
+                        // Tính số trang sao cho tổng chiều cao (kèm lề dưới) vừa vặn
+                        pageCount = Math.max(1, Math.ceil((totalH + bottomMarginPx) / pageHeightPx));
+                        const targetH = (pageCount * pageHeightPx) - bottomMarginPx;
+                        const padH = targetH - totalH;
 
-                    if (padH > 0) {
-                        cloneContent.style.paddingBottom = padH + 'px';
+                        if (padH > 0) {
+                            // Trừ hao 5px chống tràn
+                            cloneContent.style.paddingBottom = Math.max(0, padH - 5) + 'px';
+                        }
                     }
 
                     // Cập nhật wrapper height theo chiều cao vật lý (297mm) để hiển thị đường kẻ ngắt trang A4 chuẩn xác
@@ -1063,12 +1067,17 @@ function convertLogoToBase64() {
         const footerH = pdfFooter.offsetHeight;
         const totalH = headerH + contentH + footerH; // Phải tính cả header!
 
-        const pageCount = Math.max(1, Math.ceil((totalH + bottomMarginPx) / pageHeightPx));
-        const targetH = (pageCount * pageHeightPx) - bottomMarginPx;
-        const padH = targetH - totalH;
+        if (typeof window.MANUAL_DT !== 'undefined') {
+            contentWrap.style.setProperty('padding-bottom', window.MANUAL_DT + 'px', 'important');
+        } else {
+            const pageCount = Math.max(1, Math.ceil((totalH + bottomMarginPx) / pageHeightPx));
+            const targetH = (pageCount * pageHeightPx) - bottomMarginPx;
+            const padH = targetH - totalH;
 
-        if (padH > 0) {
-            contentWrap.style.setProperty('padding-bottom', padH + 'px', 'important');
+            if (padH > 0) {
+                // Trừ hao 5px để chống tràn trang do làm tròn pixel
+                contentWrap.style.setProperty('padding-bottom', Math.max(0, padH - 5) + 'px', 'important');
+            }
         }
     });
 
