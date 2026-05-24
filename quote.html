@@ -12,9 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <!-- jsPDF + AutoTable: tạo PDF text thực (không phải ảnh) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    
+            
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Roboto', sans-serif; background-color: #525659; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
@@ -398,36 +396,7 @@ function convertLogoToBase64() {
     <button onclick="window.print()"><i class="fa-solid fa-print"></i> In báo giá</button>
 </div>
 
-<!-- PDF Preview Overlay -->
-<div id="pdf-preview-overlay">
-    <div id="pdf-preview-toolbar">
-        <div class="prev-title">
-            <i class="fa-solid fa-file-pdf" style="color:#E21F25"></i>
-            Xem trước Báo Giá (A4)
-            <span id="pdf-page-count"></span>
-        </div>
-        <label class="toggle-bw-container" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.25);">
-            <input type="checkbox" id="toggle-bw-preview" onchange="toggleBWMode(this.checked)">
-            <span class="toggle-bw-slider"></span>
-            <span class="toggle-bw-label">In Trắng Đen</span>
-        </label>
-        <button id="btn-download-pdf" onclick="generatePDF()">
-            <i class="fa-solid fa-file-pdf"></i> Tải PDF
-        </button>
-        <button id="btn-close-preview" onclick="closePDFPreview()">
-            <i class="fa-solid fa-xmark"></i> Đóng
-        </button>
-    </div>
-    <div id="pdf-preview-hint">
-        <i class="fa-solid fa-circle-info"></i>
-        Nhấn <strong style="color:#fff;margin:0 4px">Tải PDF</strong> để tải file PDF text thực — sắc nét khi in. Hoặc dùng nút <strong style="color:#fff;margin:0 4px">In Máy</strong> để in trực tiếp.
-    </div>
-    <div id="pdf-preview-scroller">
-        <div id="pdf-preview-content-wrapper">
-            <div id="pdf-preview-page-lines"></div>
-            <div id="pdf-preview-doc"></div>
-        </div>
-    </div>
+
 </div>
 
 <div class="page" id="page-wrapper">
@@ -592,42 +561,63 @@ function convertLogoToBase64() {
 
     const sheetUrlPrefix = 'https://docs.google.com/spreadsheets/d/1l50QYV7alUj1Hyzykp7xgSuc9zX2DGzxErAHaDuwJFQ/gviz/tq?tqx=out:csv&sheet=';
     
-    const store = { Quote_HD: [], Quote_Line: [], Customer: [], Company_profile: [], Cust_Contact: [], Employees: [] };
-    const loader = document.getElementById('loader');
+    const store = { Quote_HD: [], Quote_Line: [], Customer: [], Company_profile: [] };
 
-    function formatCurrency(ns) { return (parseFloat(ns) || 0).toLocaleString('vi-VN'); }
-
-    /* Kiểm tra có đang chạy trong Google Apps Script không */
-    function isAppsScript() {
-        return (typeof google !== 'undefined' && google.script && google.script.run);
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec";
+    
+    function showLoader(text) {
+        document.getElementById('loader').textContent = text;
+        document.getElementById('loader').style.display = 'inline-block';
+    }
+    function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
     }
 
-    /* Fetch dữ liệu qua Apps Script API (dùng fetch trên GitHub) */
-    function fetchViaAppsScript(quoteId) {
-        return fetch(`${APPS_SCRIPT_URL}?api=quoteData&quote_id=${quoteId}`)
-            .then(r => r.json())
-            .then(res => {
-                if(res.success) return res.data;
-                throw new Error(res.error || 'Lỗi không xác định từ server');
+    async function initializeData() {
+        showLoader('Đang tải dữ liệu...');
+        
+        // 1. Resolve quoteId
+        let quoteId = '';
+        if (typeof SERVER_QUOTE_ID !== 'undefined' && SERVER_QUOTE_ID && SERVER_QUOTE_ID.indexOf("<" + "?") === -1 && SERVER_QUOTE_ID.trim() !== '') {
+            quoteId = SERVER_QUOTE_ID.trim();
+        } else if (typeof google !== 'undefined' && google.script && google.script.url) {
+            quoteId = await new Promise(resolve => {
+                google.script.url.getLocation(function(loc) { resolve(loc.parameter.quote_id); });
             });
+        }
+        if (!quoteId) {
+            const urlParams = new URLSearchParams(window.location.search);
+            quoteId = urlParams.get('quote_id');
+        }
+        if (!quoteId) {
+            document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:50px'>Thiếu tham số quote_id trên URL!</h2>";
+            return;
+        }
+
+        // 2. Fetch data from optimized Apps Script
+        try {
+            const res = await fetch(`${APPS_SCRIPT_URL}?api=quoteData&quote_id=${quoteId}`).then(r => r.json());
+            if (!res.success) {
+                throw new Error(res.error || 'Lỗi tải dữ liệu từ server');
+            }
+            
+            // Assign to store
+            store.Quote_HD = res.data.Quote_HD || [];
+            store.Quote_Line = res.data.Quote_Line || [];
+            store.Customer = res.data.Customer || [];
+            store.Company_profile = res.data.Company_profile || [];
+            
+            // 3. Render
+            applyCompanyProfile();
+            renderQuote(quoteId);
+            hideLoader();
+        } catch(err) {
+            console.error('[HL] Error:', err);
+            document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:50px'>Lỗi tải dữ liệu: " + err.message + "</h2>";
+        }
     }
 
-    /* Fetch dữ liệu qua PapaParse (dùng khi chạy standalone) */
-    function fetchSheet(sheetName) {
-        return new Promise((resolve, reject) => {
-            let isDone = false;
-            const timer = setTimeout(() => {
-                if(!isDone) { isDone = true; reject(new Error("Timeout: " + sheetName)); }
-            }, 15000);
-            Papa.parse(sheetUrlPrefix + sheetName + "&t=" + Date.now(), {
-                download: true, header: true, skipEmptyLines: true,
-                complete: function(results) { if(!isDone) { isDone = true; clearTimeout(timer); resolve(results.data); } },
-                error: function(err) { if(!isDone) { isDone = true; clearTimeout(timer); reject(new Error("Lỗi đọc sheet " + sheetName)); } }
-            });
-        });
-    }
 
-    /* Xử lý company profile sau khi load xong */
     function applyCompanyProfile() {
         if (store.Company_profile.length === 0) return;
         const cmp = store.Company_profile[0];
@@ -936,95 +926,7 @@ function convertLogoToBase64() {
 
     /* ===== PDF PREVIEW + PRINT (text PDF thực sự, không dùng ảnh) ===== */
 
-    function openPDFPreview() {
-        const overlay = document.getElementById('pdf-preview-overlay');
-        const previewDoc = document.getElementById('pdf-preview-doc');
-        const pageLines = document.getElementById('pdf-preview-page-lines');
-        const pageCountEl = document.getElementById('pdf-page-count');
-
-        // Clone toàn bộ nội dung báo giá vào preview
-        const source = document.getElementById('page-wrapper');
-        const clone = source.cloneNode(true);
-        // Xóa id để tránh conflict
-        clone.removeAttribute('id');
-        clone.style.width = '210mm';
-        clone.style.boxShadow = 'none';
-        clone.style.margin = '0';
-        clone.style.minHeight = 'auto';
-
-        previewDoc.innerHTML = '';
-        previewDoc.appendChild(clone);
-
-        // Hiện overlay trước để đo được chiều cao
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-
-        // Đợi layout xong rồi tính số trang
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                let pageCount = 1;
-                const mmToPx = previewDoc.offsetWidth / 210;
-                const pageHeightPx = Math.round(287 * mmToPx);
-                const bottomMarginPx = Math.round(12 * mmToPx); // Khoảng cách an toàn cách mép dưới 12mm
-
-                // Đo chiều cao thực tế của TOÀN BỘ trang (header + content + footer) để tính ngắt trang
-                const cloneHeader = clone.querySelector('.header');
-                const cloneContent = clone.querySelector('.content-wrap');
-                const cloneFooter = clone.querySelector('#pdf-footer');
-                if (cloneContent && cloneFooter) {
-                    cloneContent.style.paddingBottom = '0px'; // Reset để đo chuẩn
-                    const headerH = cloneHeader ? cloneHeader.offsetHeight : 0;
-                    const contentH = cloneContent.offsetHeight;
-                    const footerH = cloneFooter.offsetHeight;
-                    const totalH = headerH + contentH + footerH; // Phải tính cả header!
-
-                    if (typeof window.MANUAL_DT !== 'undefined') {
-                        cloneContent.style.paddingBottom = window.MANUAL_DT + 'px';
-                        // Tính lại pageCount sau khi gán manual padding
-                        pageCount = Math.max(1, Math.ceil((totalH + window.MANUAL_DT + bottomMarginPx) / pageHeightPx));
-                    } else {
-                        // Tính số trang sao cho tổng chiều cao (kèm lề dưới) vừa vặn
-                        pageCount = Math.max(1, Math.ceil((totalH + bottomMarginPx) / pageHeightPx));
-                        const targetH = (pageCount * pageHeightPx) - bottomMarginPx;
-                        const padH = targetH - totalH;
-
-                        if (padH > 0) {
-                            // Trừ hao 5px chống tràn
-                            cloneContent.style.paddingBottom = Math.max(0, padH - 5) + 'px';
-                        }
-                    }
-
-                    // Cập nhật wrapper height theo chiều cao vật lý (297mm) để hiển thị đường kẻ ngắt trang A4 chuẩn xác
-                    const wrapper = document.getElementById('pdf-preview-content-wrapper');
-                    wrapper.style.height = (pageCount * pageHeightPx) + 'px';
-
-                    // Cập nhật thông tin số trang
-                    if (pageCountEl) {
-                        pageCountEl.textContent = '— ' + pageCount + ' trang A4';
-                    }
-                }
-
-                // Thêm nhãn số trang bên trái
-                pageLines.innerHTML = '';
-                for (let p = 1; p <= pageCount; p++) {
-                    const label = document.createElement('div');
-                    label.className = 'pdf-page-label';
-                    label.style.top = ((p - 1) * pageHeightPx + 8) + 'px';
-                    label.textContent = 'Trang ' + p;
-                    pageLines.appendChild(label);
-                }
-            });
-        });
-    }
-
-    function closePDFPreview() {
-        const overlay = document.getElementById('pdf-preview-overlay');
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-        // Dọn dẹp để tiết kiệm bộ nhớ
-        document.getElementById('pdf-preview-doc').innerHTML = '';
-    }
-
+    
     function toggleBWMode(isBW) {
         if (isBW) {
             document.body.classList.add('print-bw');
@@ -1032,18 +934,9 @@ function convertLogoToBase64() {
             document.body.classList.remove('print-bw');
         }
 
-        // Sync checkboxes
-        const cbMain = document.getElementById('toggle-bw');
-        const cbPreview = document.getElementById('toggle-bw-preview');
-        if (cbMain) cbMain.checked = isBW;
-        if (cbPreview) cbPreview.checked = isBW;
+        
 
-        // If the preview is open, re-clone the updated page
-        const overlay = document.getElementById('pdf-preview-overlay');
-        if (overlay && overlay.classList.contains('active')) {
-            openPDFPreview();
-        }
-    }
+            }
 
     let origPaddingBottom = '';
 
@@ -1094,544 +987,6 @@ function convertLogoToBase64() {
      * Footer "Cám ơn" luôn nằm dưới cùng trang CUỐI
      * Margin 10mm trên + 10mm dưới mỗi trang
      * ============================================================ */
-    async function generatePDF() {
-        const btn = document.getElementById('btn-download-pdf');
-        const origHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo PDF...';
-        btn.disabled = true;
-
-        try {
-            const { jsPDF } = window.jspdf;
-
-            // --- Hằng số trang A4 ---
-            const PAGE_W   = 210;
-            const PAGE_H   = 297;
-            const MARGIN_X = 5;
-            const MARGIN_TOP = 5;
-            const MARGIN_BOT = 10;
-            const CONTENT_W = PAGE_W - MARGIN_X * 2; // 190 mm
-
-            // --- Màu thương hiệu ---
-            const C_NAVY  = [17, 52, 88];
-            const C_RED   = [226, 31, 37];
-            const C_GRAY  = [209, 213, 219];
-            const C_WHITE = [255, 255, 255];
-            const C_BG    = [250, 250, 251];
-            const C_DARK  = [51, 51, 51];
-            const C_GOLD  = [255, 215, 0];
-
-            const getText = (id) => { const e = document.getElementById(id); return e ? e.textContent.trim() : ''; };
-            const isBW = document.body.classList.contains('print-bw');
-            const navy = isBW ? [30, 30, 30] : C_NAVY;
-            const red  = isBW ? [80, 80, 80] : C_RED;
-
-            // Helper: vẽ đa giác tô màu bằng jsPDF 2.x lines() API
-            function fillPolygon(doc, points) {
-                if (points.length < 2) return;
-                doc.lines(
-                    points.slice(1).map((p, i) => [p.x - points[i].x, p.y - points[i].y]),
-                    points[0].x, points[0].y,
-                    [1, 1], 'F', true
-                );
-            }
-
-            // --- Tải font Roboto hỗ trợ tiếng Việt ---
-            window.__pdfFontsCache__ = window.__pdfFontsCache__ || {};
-            const fontsToLoad = [
-                { url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-Regular.ttf', name: 'Roboto', style: 'normal', file: 'Roboto-Regular.ttf' },
-                { url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-Medium.ttf', name: 'Roboto', style: 'bold', file: 'Roboto-Medium.ttf' },
-                { url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-Italic.ttf', name: 'Roboto', style: 'italic', file: 'Roboto-Italic.ttf' }
-            ];
-
-            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-            for (const font of fontsToLoad) {
-                if (!window.__pdfFontsCache__[font.file]) {
-                    try {
-                        const res = await fetch(font.url);
-                        const buffer = await res.arrayBuffer();
-                        let binary = '';
-                        const bytes = new Uint8Array(buffer);
-                        const chunk = 8192;
-                        for (let i = 0; i < bytes.length; i += chunk) {
-                            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-                        }
-                        window.__pdfFontsCache__[font.file] = window.btoa(binary);
-                    } catch(e) {
-                        console.warn('Không tải được font', font.url, e);
-                    }
-                }
-                if (window.__pdfFontsCache__[font.file]) {
-                    doc.addFileToVFS(font.file, window.__pdfFontsCache__[font.file]);
-                    doc.addFont(font.file, font.name, font.style, 'Identity-H');
-                }
-            }
-
-            // Set font mặc định cho toàn bộ doc
-            doc.setFont('Roboto', 'normal');
-            let currentY = MARGIN_TOP;
-
-            // ================================================================
-            // PHẦN 1: HEADER
-            // ================================================================
-            const HEADER_H = 28;
-
-            // Vẽ nền Header: Xám, Đỏ, Xanh Đen giống web
-            if (!isBW) {
-                const rightX = PAGE_W - MARGIN_X;
-                const topY = MARGIN_TOP;
-                const botY = MARGIN_TOP + HEADER_H;
-                
-                doc.setFillColor(209, 213, 219); // Xám
-                fillPolygon(doc, [{x: 134, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 114, y: botY}]);
-                
-                doc.setFillColor(...C_RED); // Đỏ
-                fillPolygon(doc, [{x: 146, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 126, y: botY}]);
-                
-                doc.setFillColor(...C_NAVY); // Xanh đen
-                fillPolygon(doc, [{x: 158, y: topY}, {x: rightX, y: topY}, {x: rightX, y: botY}, {x: 138, y: botY}]);
-            } else {
-                doc.setFillColor(220, 220, 220);
-                doc.rect(68, MARGIN_TOP, PAGE_W - MARGIN_X - 68, HEADER_H, 'F');
-            }
-
-            // --- Logo ---
-            try {
-                const logoSvg = document.querySelector('#company-logo-container svg');
-                const logoImg = document.getElementById('company-logo-img');
-                let logoDataUrl = null;
-
-                if (logoImg && logoImg.src && logoImg.src.startsWith('data:image')) {
-                    logoDataUrl = logoImg.src;
-                } else if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
-                    const tmpC = document.createElement('canvas');
-                    tmpC.width = logoImg.naturalWidth; tmpC.height = logoImg.naturalHeight;
-                    tmpC.getContext('2d').drawImage(logoImg, 0, 0);
-                    try { logoDataUrl = tmpC.toDataURL('image/png'); } catch(e) {}
-                } else if (logoSvg) {
-                    const tmpC = document.createElement('canvas');
-                    tmpC.width = 200; tmpC.height = 200;
-                    const ctx2d = tmpC.getContext('2d');
-                    const svgStr = new XMLSerializer().serializeToString(logoSvg);
-                    const img2 = new Image();
-                    await new Promise(res => {
-                        img2.onload = res; img2.onerror = res;
-                        img2.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
-                    });
-                    ctx2d.drawImage(img2, 0, 0, 200, 200);
-                    try { logoDataUrl = tmpC.toDataURL('image/png'); } catch(e) {}
-                }
-                if (logoDataUrl) {
-                    const logoSize = HEADER_H - 4;
-                    doc.addImage(logoDataUrl, 'PNG', MARGIN_X, MARGIN_TOP + 2, logoSize, logoSize);
-                }
-            } catch(e) { console.warn('Logo:', e); }
-
-            // --- Tên công ty ---
-            const textX = MARGIN_X + 28;
-            doc.setFontSize(7); doc.setFont('Roboto', 'bold');
-            doc.setTextColor(...navy);
-            doc.text('CTY TNHH CƠ KHÍ CHẾ TẠO TM', textX, MARGIN_TOP + 7);
-
-            doc.setFontSize(15); doc.setFont('Roboto', 'bold');
-            doc.setTextColor(...navy);
-            doc.text(getText('company-name') || 'HIEP LUC', textX, MARGIN_TOP + 14);
-
-            doc.setFontSize(7); doc.setFont('Roboto', 'italic');
-            doc.setTextColor(...red);
-            doc.text('Hiệp lực giá trị thực cho cuộc sống', textX, MARGIN_TOP + 19);
-
-            // --- "BÁO GIÁ" bên phải ---
-            doc.setFontSize(20); doc.setFont('Roboto', 'normal');
-            doc.setTextColor(...C_WHITE);
-            doc.text('BÁO GIÁ', PAGE_W - MARGIN_X - 5, MARGIN_TOP + 14, { align: 'right' });
-            doc.setFontSize(9); doc.setFont('Roboto', 'italic');
-            doc.text('QUOTATION', PAGE_W - MARGIN_X - 5, MARGIN_TOP + 20, { align: 'right' });
-
-            // --- Đường kẻ đỏ dưới header ---
-            doc.setDrawColor(...red); doc.setLineWidth(1.2);
-            doc.line(MARGIN_X, MARGIN_TOP + HEADER_H, PAGE_W - MARGIN_X, MARGIN_TOP + HEADER_H);
-            doc.setLineWidth(0.3);
-
-            currentY = MARGIN_TOP + HEADER_H + 4;
-
-            // ================================================================
-            // PHẦN 2: INFO GRID
-            // ================================================================
-            const INFO_H = 34;
-            const COL1_W = (CONTENT_W - 4) / 2;
-            const COL2_W = CONTENT_W - COL1_W - 4;
-            const COL1_X = MARGIN_X;
-            const COL2_X = MARGIN_X + COL1_W + 4;
-
-            // Hộp khách hàng
-            doc.setDrawColor(...C_GRAY); doc.setLineWidth(0.3);
-            doc.roundedRect(COL1_X, currentY, COL1_W, INFO_H, 2, 2, 'S');
-            doc.setFillColor(...navy);
-            doc.roundedRect(COL1_X, currentY, 52, 5.5, 1.5, 1.5, 'F');
-            doc.setTextColor(...C_WHITE); doc.setFontSize(6.5); doc.setFont('Roboto', 'bold');
-            doc.text('KÍNH GỬI ĐẾN KHÁCH HÀNG', COL1_X + 2, currentY + 3.8);
-
-            const custData = [
-                ['Mr/Ms:', getText('c-contact')],
-                ['Cellphone:', getText('c-phone')],
-                ['Email:', getText('c-email')],
-                ['CTY:', getText('c-company')]
-            ];
-            custData.forEach(([lbl, val], i) => {
-                const rowY = currentY + 8.5 + i * 5.8;
-                doc.setFont('Roboto', 'bold'); doc.setTextColor(...navy); doc.setFontSize(7.5);
-                doc.text(lbl, COL1_X + 2, rowY);
-                doc.setFont('Roboto', 'normal'); doc.setTextColor(...C_DARK);
-                const truncated = doc.splitTextToSize(val, COL1_W - 22)[0] || '';
-                doc.text(truncated, COL1_X + 20, rowY);
-            });
-
-            // Hộp meta
-            doc.setDrawColor(...C_GRAY);
-            doc.roundedRect(COL2_X, currentY, COL2_W, INFO_H, 2, 2, 'S');
-            const metaData = [
-                ['Ngày lập',        getText('q-date')],
-                ['Giá trị tới ngày', getText('q-val-date')],
-                ['Số báo giá',       getText('q-no')],
-                ['Người phụ trách',  getText('q-pic')],
-                ['ĐT liên lạc',      getText('q-pic-phone')],
-                ['Email',            getText('q-pic-email')]
-            ];
-            const metaRowH = INFO_H / metaData.length;
-            metaData.forEach(([lbl, val], i) => {
-                const rowY = currentY + metaRowH * i;
-                if (i > 0) { doc.setDrawColor(...C_GRAY); doc.line(COL2_X, rowY, COL2_X + COL2_W, rowY); }
-                // label bg
-                doc.setFillColor(248, 249, 250);
-                doc.rect(COL2_X, rowY + 0.1, 38, metaRowH - 0.1, 'F');
-                doc.setFont('Roboto', 'bold'); doc.setTextColor(...navy); doc.setFontSize(7);
-                doc.text(lbl, COL2_X + 2, rowY + metaRowH * 0.65);
-                // divider
-                doc.setDrawColor(...C_GRAY);
-                doc.line(COL2_X + 38, rowY, COL2_X + 38, rowY + metaRowH);
-                // value
-                doc.setFont('Roboto', 'normal'); doc.setTextColor(...C_DARK); doc.setFontSize(7.5);
-                doc.text(val, COL2_X + 40, rowY + metaRowH * 0.65);
-            });
-
-            currentY += INFO_H + 3;
-
-            // ================================================================
-            // PHẦN 3: QUOTE BANNER
-            // ================================================================
-            const BANNER_H = 9;
-            doc.setFillColor(...red);
-            doc.roundedRect(MARGIN_X, currentY, 10, BANNER_H, 1, 1, 'F');
-            // Draw tiny document icon
-            doc.setDrawColor(...C_WHITE); doc.setLineWidth(0.4);
-            doc.rect(MARGIN_X + 2.8, currentY + 1.8, 4.4, 5.4, 'S');
-            doc.line(MARGIN_X + 3.8, currentY + 3.5, MARGIN_X + 6.0, currentY + 3.5);
-            doc.line(MARGIN_X + 3.8, currentY + 5.0, MARGIN_X + 6.0, currentY + 5.0);
-            doc.setLineWidth(0.3);
-
-            doc.setDrawColor(...C_GRAY); doc.setFillColor(...C_WHITE);
-            doc.roundedRect(MARGIN_X + 10, currentY, 24, BANNER_H, 0, 0, 'FD');
-            doc.setFont('Roboto', 'bold'); doc.setTextColor(...navy); doc.setFontSize(8.5);
-            doc.text('BÁO GIÁ', MARGIN_X + 13, currentY + 6.2);
-            doc.setDrawColor(...C_GRAY);
-            doc.line(MARGIN_X + 34, currentY, MARGIN_X + 34, currentY + BANNER_H);
-
-            doc.setFillColor(252, 252, 252);
-            doc.roundedRect(MARGIN_X + 34, currentY, CONTENT_W - 34, BANNER_H, 0, 0, 'FD');
-            doc.setFont('Roboto', 'bold'); doc.setTextColor(...C_DARK); doc.setFontSize(8);
-            const bannerDesc = doc.splitTextToSize(getText('banner-desc'), CONTENT_W - 38)[0] || '';
-            doc.text(bannerDesc, MARGIN_X + 37, currentY + 6.2);
-
-            currentY += BANNER_H + 3;
-
-            // ================================================================
-            // PHẦN 4: BẢNG DỮ LIỆU
-            // ================================================================
-            const FOOTER_H     = 18;
-            const PAGE_META_H  = 5;
-            const FOOTER_TOTAL = FOOTER_H + PAGE_META_H;
-            // Loại bỏ khoảng trắng thừa ở cuối mỗi trang
-            const TABLE_MARGIN_BOT = MARGIN_BOT;
-
-            
-            // Tính toán giá trị padding cho bảng từ URL
-            let padY = 2; // mặc định
-            const rpValue = await resolveRowPadding();
-            if (rpValue) {
-                const rpPx = parseFloat(rpValue);
-                if (!isNaN(rpPx) && rpPx >= 0) {
-                    padY = rpPx / 3; // chuyển đổi tương đối px sang mm cho PDF
-                }
-            }
-
-            // Tính toán độ rộng cột mô tả và cột ghi chú từ URL
-            let descW = 82; // mặc định
-            let noteW = 20; // mặc định
-            const noteWidthValue = await resolveNoteWidth();
-            if (noteWidthValue) {
-                const notePct = parseFloat(noteWidthValue);
-                if (!isNaN(notePct) && notePct >= 10 && notePct <= 45) {
-                    const descPct = 51 - (notePct - 10);
-                    const totalPct = descPct + notePct;
-                    descW = (descPct / totalPct) * 102;
-                    noteW = (notePct / totalPct) * 102;
-                }
-            }
-
-            const tableRows = [];
-            document.querySelectorAll('#table-body tr').forEach(tr => {
-                const tds = tr.querySelectorAll('td');
-                if (tds.length === 7) {
-                    tableRows.push([
-                        tds[0].innerText.trim(),
-                        tds[1].innerText.trim(),
-                        tds[2].innerText.trim(),
-                        tds[3].innerText.trim(),
-                        tds[4].innerText.trim(),
-                        tds[5].innerText.trim(),
-                        tds[6].innerText.trim()
-                    ]);
-                } else if (tds.length > 0) {
-                    tableRows.push([{ content: tds[0].innerText.trim(), colSpan: 7, styles: {
-                        fontStyle: 'bold', fillColor: isBW ? [220,220,220] : [237,242,247],
-                        textColor: navy, fontSize: 8, halign: 'center'
-                    }}]);
-                }
-            });
-
-            doc.autoTable({
-                startY: currentY,
-                margin: { left: MARGIN_X, right: MARGIN_X, top: MARGIN_TOP + 2, bottom: TABLE_MARGIN_BOT },
-                head: [['STT', 'Nội dung / Công Việc', 'ĐVT', 'SL', 'Đơn giá (VNĐ)', 'Thành Tiền (VNĐ)', 'Ghi Chú']],
-                body: tableRows,
-                theme: 'grid',
-                styles: {
-                    font: 'Roboto', fontSize: 7.5,
-                    cellPadding: { top: padY, bottom: padY, left: 2, right: 2 },
-                    lineColor: C_GRAY, lineWidth: 0.3,
-                    textColor: C_DARK, overflow: 'linebreak'
-                },
-                headStyles: {
-                    fillColor: isBW ? [80,80,80] : navy,
-                    textColor: C_WHITE, fontStyle: 'bold',
-                    fontSize: 7.5, halign: 'center', valign: 'middle'
-                },
-                alternateRowStyles: { fillColor: C_BG },
-                columnStyles: {
-                    0: { halign: 'center', cellWidth: 9,  fontStyle: 'bold' },
-                    1: { halign: 'left',   cellWidth: descW },
-                    2: { halign: 'center', cellWidth: 12 },
-                    3: { halign: 'center', cellWidth: 12, fontStyle: 'bold' },
-                    4: { halign: 'right',  cellWidth: 25 },
-                    5: { halign: 'right',  cellWidth: 30 },
-                    6: { halign: 'left',   cellWidth: noteW, fontSize: 6.5, textColor: [85,85,85] }
-                }
-            });
-
-            currentY = doc.lastAutoTable.finalY + 3;
-
-            // ================================================================
-            // PHẦN 5: BOTTOM GRID (Ghi chú | Tổng + Ký tên)
-            // ================================================================
-            const BOTTOM_H    = 36;
-            const NOTE2_H     = 28;
-            const COL_NOTE_W  = (CONTENT_W - 4) / 2;
-            const COL_TOTAL_W = (CONTENT_W - 4) / 2;
-            const TOT_X       = MARGIN_X + COL_NOTE_W + 4;
-
-            // Nếu không đủ chỗ → xuống trang mới
-            const bottomNeeded = BOTTOM_H + 4 + NOTE2_H + FOOTER_TOTAL + 10;
-            if (currentY + bottomNeeded > PAGE_H - MARGIN_BOT) {
-                doc.addPage();
-                currentY = MARGIN_TOP + 2;
-            }
-
-            // --- Row 1: Ghi chú đặc biệt | Tổng tiền ---
-            doc.setDrawColor(...C_GRAY);
-            doc.roundedRect(MARGIN_X, currentY, COL_NOTE_W, BOTTOM_H, 2, 2, 'S');
-            doc.setFillColor(...navy);
-            doc.roundedRect(MARGIN_X, currentY, 64, 5, 1.5, 1.5, 'F');
-            doc.setTextColor(...C_WHITE); doc.setFontSize(6); doc.setFont('Roboto', 'bold');
-            doc.text('GHI CHÚ ĐẶC BIỆT CỦA KHÁCH HÀNG (NẾU CÓ)', MARGIN_X + 2, currentY + 3.5);
-
-            const specialNote = document.getElementById('c-special-note');
-            if (specialNote && specialNote.textContent.trim()) {
-                doc.setFont('Roboto', 'normal'); doc.setTextColor(...C_DARK); doc.setFontSize(7.5);
-                const noteLines = doc.splitTextToSize(specialNote.textContent.trim(), COL_NOTE_W - 4);
-                doc.text(noteLines.slice(0, 4), MARGIN_X + 2, currentY + 9);
-            }
-
-            // Tổng tiền
-            const totalsData = [
-                ['Tổng tiền (VNĐ)', getText('t-subtotal')],
-                ['VAT (8%)',        getText('t-vat')],
-                ['TỔNG CỘNG',       getText('t-total')]
-            ];
-            const TOT_ROW_H = BOTTOM_H / 3;
-            doc.setDrawColor(...C_GRAY);
-            doc.roundedRect(TOT_X, currentY, COL_TOTAL_W, BOTTOM_H, 2, 2, 'S');
-            totalsData.forEach(([lbl, val], i) => {
-                const rowY2 = currentY + TOT_ROW_H * i;
-                const isLast = i === 2;
-                if (i > 0) { doc.setDrawColor(...C_GRAY); doc.line(TOT_X, rowY2, TOT_X + COL_TOTAL_W, rowY2); }
-                if (isLast) {
-                    doc.setFillColor(...(isBW ? [190,190,190] : red));
-                    doc.rect(TOT_X, rowY2, COL_TOTAL_W, TOT_ROW_H, 'F');
-                    doc.setTextColor(...C_WHITE);
-                } else {
-                    doc.setTextColor(...C_DARK);
-                }
-                doc.setFont('Roboto', isLast ? 'bold' : 'normal');
-                doc.setFontSize(isLast ? 8 : 7.5);
-                doc.text(lbl, TOT_X + 3, rowY2 + TOT_ROW_H / 2 + 2);
-                // divider dọc
-                const divX = TOT_X + COL_TOTAL_W - 32;
-                doc.setDrawColor(isLast ? (isBW ? 160 : 237) : C_GRAY[0],
-                                 isLast ? (isBW ? 160 : 118) : C_GRAY[1],
-                                 isLast ? (isBW ? 160 : 121) : C_GRAY[2]);
-                doc.line(divX, rowY2, divX, rowY2 + TOT_ROW_H);
-                doc.setFont('Roboto', 'bold'); doc.setFontSize(isLast ? 9 : 7.5);
-                doc.text(val, TOT_X + COL_TOTAL_W - 2, rowY2 + TOT_ROW_H / 2 + 2, { align: 'right' });
-            });
-
-            currentY += BOTTOM_H + 3;
-
-            // --- Row 2: Ghi chú phụ | Ký tên ---
-            doc.setDrawColor(...C_GRAY);
-            doc.roundedRect(MARGIN_X, currentY, COL_NOTE_W, NOTE2_H, 2, 2, 'S');
-            doc.setFillColor(...red);
-            doc.roundedRect(MARGIN_X, currentY, 22, 5, 1.5, 1.5, 'F');
-            doc.setTextColor(...C_WHITE); doc.setFontSize(6.5); doc.setFont('Roboto', 'bold');
-            doc.text('GHI CHÚ', MARGIN_X + 2, currentY + 3.5);
-            const qNote = document.getElementById('q-note');
-            if (qNote && qNote.textContent.trim()) {
-                doc.setFont('Roboto', 'italic'); doc.setTextColor(...C_DARK); doc.setFontSize(7.5);
-                const noteLines2 = doc.splitTextToSize(qNote.textContent.trim(), COL_NOTE_W - 4);
-                doc.text(noteLines2.slice(0, 3), MARGIN_X + 2, currentY + 9);
-            }
-
-            // Ký tên
-            doc.setDrawColor(...C_GRAY);
-            doc.roundedRect(TOT_X, currentY, COL_TOTAL_W, NOTE2_H, 2, 2, 'S');
-            
-            // Chia bảng chữ ký theo tỷ lệ 35% - 65%
-            const splitX = TOT_X + COL_TOTAL_W * 0.35;
-            const leftW = splitX - TOT_X;
-            const row1H = 10;
-            
-            // Đường kẻ ngang và dọc
-            doc.setDrawColor(...C_GRAY);
-            doc.line(TOT_X, currentY + row1H, TOT_X + COL_TOTAL_W, currentY + row1H);
-            doc.line(splitX, currentY, splitX, currentY + NOTE2_H);
-            
-            doc.setFont('Roboto', 'normal'); doc.setTextColor(...C_DARK); doc.setFontSize(7.5);
-            // Text cột trái
-            doc.text('KT Giám đốc', TOT_X + leftW / 2, currentY + 4.5, { align: 'center', maxWidth: leftW - 2 });
-            doc.text('Ký tên', TOT_X + leftW / 2, currentY + row1H + 4.5, { align: 'center', maxWidth: leftW - 2 });
-
-            currentY += NOTE2_H + 4;
-
-            // ================================================================
-            // PHẦN 6: FOOTER — LUÔN Ở CUỐI TRANG CUỐI CÙNG
-            // Vị trí footer cố định tính từ cuối trang
-            // ================================================================
-            const finalPageNum = doc.internal.getNumberOfPages();
-            doc.setPage(finalPageNum);
-
-            // footerY = vị trí Y cố định từ dưới lên, luôn là cuối trang
-            const footerY  = PAGE_H - MARGIN_BOT - FOOTER_TOTAL;
-            // Nếu content tràn xuống dưới footerY, cần thêm trang
-            if (currentY > footerY - 5) {
-                doc.addPage();
-                doc.setPage(doc.internal.getNumberOfPages());
-            }
-            const usedFooterY = PAGE_H - MARGIN_BOT - FOOTER_TOTAL;
-
-            // Background navy
-            doc.setFillColor(...(isBW ? [235,235,235] : navy));
-            doc.roundedRect(MARGIN_X, usedFooterY, CONTENT_W, FOOTER_H, 2, 2, 'F');
-            if (isBW) { doc.setDrawColor(180,180,180); doc.roundedRect(MARGIN_X, usedFooterY, CONTENT_W, FOOTER_H, 2, 2, 'S'); }
-
-            // QR Code
-            try {
-                const qrImg = document.getElementById('vietqr-img');
-                if (qrImg && qrImg.complete && qrImg.naturalWidth > 0) {
-                    const qrCanvas = document.createElement('canvas');
-                    qrCanvas.width = 100; qrCanvas.height = 100;
-                    qrCanvas.getContext('2d').drawImage(qrImg, 0, 0, 100, 100);
-                    const qrDataUrl = qrCanvas.toDataURL('image/png');
-                    doc.setFillColor(255,255,255);
-                    doc.roundedRect(MARGIN_X + 2, usedFooterY + 2, 15, 14, 1, 1, 'F');
-                    doc.addImage(qrDataUrl, 'PNG', MARGIN_X + 2.5, usedFooterY + 2.5, 14, 13);
-                }
-            } catch(e) {}
-
-            const ftx    = MARGIN_X + 19;
-            const ftColor = isBW ? C_DARK : C_WHITE;
-
-            // Dòng phân cách ngang
-            doc.setDrawColor(isBW ? 160 : 255, isBW ? 160 : 255, isBW ? 160 : 255);
-            doc.setLineWidth(0.2);
-            doc.line(ftx, usedFooterY + 8.5, MARGIN_X + CONTENT_W - 2, usedFooterY + 8.5);
-            doc.setLineWidth(0.3);
-
-            // Icon tròn đỏ + "Cám ơn..."
-            doc.setFillColor(...(isBW ? [130,130,130] : C_RED));
-            doc.ellipse(ftx + 2.5, usedFooterY + 4.5, 2.5, 2.5, 'F');
-            doc.setTextColor(...C_WHITE); doc.setFontSize(7); doc.setFont('Roboto', 'bold');
-            doc.text('v', ftx + 1.3, usedFooterY + 5.5);
-
-            doc.setTextColor(...(isBW ? [0,0,0] : C_GOLD));
-            doc.setFontSize(8); doc.setFont('Roboto', 'bold');
-            doc.text('Cảm ơn sự hợp tác của quý khách hàng !', ftx + 6.5, usedFooterY + 5.5);
-
-            // Contact
-            doc.setTextColor(...ftColor); doc.setFontSize(6.8); doc.setFont('Roboto', 'normal');
-            const contactName = getText('footer-contact-name') || 'Le Hoang Thong (Mr)';
-            doc.text(contactName + '  |  0919 370 575  |  congtyhiepluc@yahoo.com',
-                PAGE_W - MARGIN_X - 2, usedFooterY + 5.5, { align: 'right' });
-
-            // Địa chỉ
-            const addrRaw = getText('f-address') ||
-                'So 37 duong 357, Khu nha o Phuoc Long B, Phuong Phuoc Long B, TP.Thu Duc, TPHCM';
-            const bankRaw = document.getElementById('f-bank') ?
-                document.getElementById('f-bank').textContent.trim() :
-                'MST: 0304237988  |  STK: 117000018926 - NH CONG THUONG, CN DONG SAI GON';
-            doc.setFontSize(6.5); doc.setTextColor(...ftColor);
-            doc.text('Địa chỉ: ' + addrRaw, ftx, usedFooterY + 12.5);
-            doc.text(bankRaw, ftx, usedFooterY + 16);
-
-            // Page-meta strip
-            const metaY = usedFooterY + FOOTER_H + 1;
-            doc.setFillColor(248, 248, 248);
-            doc.rect(MARGIN_X, metaY, CONTENT_W, PAGE_META_H - 1, 'F');
-            doc.setDrawColor(...C_GRAY);
-            doc.line(MARGIN_X, metaY, MARGIN_X + CONTENT_W, metaY);
-            doc.setTextColor(160, 160, 160);
-            doc.setFontSize(6); doc.setFont('Roboto', 'normal');
-            doc.text('D:/HL/QT', MARGIN_X + 2, metaY + 3);
-            doc.text('F-FL-QT-01', MARGIN_X + CONTENT_W - 2, metaY + 3, { align: 'right' });
-
-            // Số trang ở góc phải trên mỗi trang
-            const totalPages = doc.internal.getNumberOfPages();
-            for (let p = 1; p <= totalPages; p++) {
-                // Removed page numbers per user request
-            }
-
-            // Xuất file
-            const quoteNo = getText('q-no') || 'BaoGia';
-            doc.save('Bao_Gia_' + quoteNo + '.pdf');
-
-        } catch(err) {
-            console.error('[HL] Lỗi tạo PDF:', err);
-            alert('Lỗi tạo PDF: ' + err.message + '\n\nVui lòng dùng nút "In Máy" thay thế.');
-        } finally {
-            btn.innerHTML = origHTML;
-            btn.disabled = false;
-        }
-    }
-
     async function exportToExcel() {
         const quoteNo = document.getElementById('q-no').textContent || 'Quotation';
         const excelBtn = document.getElementById('btn-excel');
