@@ -561,7 +561,7 @@ function convertLogoToBase64() {
 
     const sheetUrlPrefix = 'https://docs.google.com/spreadsheets/d/1l50QYV7alUj1Hyzykp7xgSuc9zX2DGzxErAHaDuwJFQ/gviz/tq?tqx=out:csv&sheet=';
     
-    const store = { Quote_HD: [], Quote_Line: [], Customer: [], Company_profile: [] };
+    const store = { Quote_HD: [], Quote_Line: [], Customer: [], Company_profile: [], Cust_Contact: [], Employees: [] };
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtAyqr9uEALKZioylBUC4Zdp6mDE9ygVs_j8r64JfNQOZn8IdG9Eh6MJ5pk0SMvcIP/exec";
     
@@ -569,55 +569,12 @@ function convertLogoToBase64() {
         document.getElementById('loader').textContent = text;
         document.getElementById('loader').style.display = 'inline-block';
     }
-    function hideLoader() {
-        document.getElementById('loader').style.display = 'none';
+    async function fetchViaAppsScript(quoteId) {
+        const res = await fetch(`${APPS_SCRIPT_URL}?api=quoteData&quote_id=${quoteId}`).then(r => r.json());
+        if (!res.success) throw new Error(res.error || 'Lỗi tải dữ liệu từ server');
+        return res.data;
     }
-
-    async function initializeData() {
-        showLoader('Đang tải dữ liệu...');
-        
-        // 1. Resolve quoteId
-        let quoteId = '';
-        if (typeof SERVER_QUOTE_ID !== 'undefined' && SERVER_QUOTE_ID && SERVER_QUOTE_ID.indexOf("<" + "?") === -1 && SERVER_QUOTE_ID.trim() !== '') {
-            quoteId = SERVER_QUOTE_ID.trim();
-        } else if (typeof google !== 'undefined' && google.script && google.script.url) {
-            quoteId = await new Promise(resolve => {
-                google.script.url.getLocation(function(loc) { resolve(loc.parameter.quote_id); });
-            });
-        }
-        if (!quoteId) {
-            const urlParams = new URLSearchParams(window.location.search);
-            quoteId = urlParams.get('quote_id');
-        }
-        if (!quoteId) {
-            document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:50px'>Thiếu tham số quote_id trên URL!</h2>";
-            return;
-        }
-
-        // 2. Fetch data from optimized Apps Script
-        try {
-            const res = await fetch(`${APPS_SCRIPT_URL}?api=quoteData&quote_id=${quoteId}`).then(r => r.json());
-            if (!res.success) {
-                throw new Error(res.error || 'Lỗi tải dữ liệu từ server');
-            }
-            
-            // Assign to store
-            store.Quote_HD = res.data.Quote_HD || [];
-            store.Quote_Line = res.data.Quote_Line || [];
-            store.Customer = res.data.Customer || [];
-            store.Company_profile = res.data.Company_profile || [];
-            
-            // 3. Render
-            applyCompanyProfile();
-            renderQuote(quoteId);
-            hideLoader();
-        } catch(err) {
-            console.error('[HL] Error:', err);
-            document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:50px'>Lỗi tải dữ liệu: " + err.message + "</h2>";
-        }
-    }
-
-
+    
     function applyCompanyProfile() {
         if (store.Company_profile.length === 0) return;
         const cmp = store.Company_profile[0];
