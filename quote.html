@@ -721,6 +721,20 @@ function convertLogoToBase64() {
     }
 
 
+    /* Resolve tham số khoảng cách footer từ URL — đơn vị px */
+    function resolveFooterDistance() {
+        return new Promise(function(resolve) {
+            if (isAppsScript()) {
+                google.script.url.getLocation(function(location) {
+                    resolve(location.parameter.dt || '');
+                });
+            } else {
+                const params = new URLSearchParams(window.location.search);
+                resolve(params.get('dt') || '');
+            }
+        });
+    }
+
     async function initializeData() {
         if(loader) loader.style.display = 'inline-block';
         try {
@@ -768,6 +782,20 @@ function convertLogoToBase64() {
                     if (ths.length >= 7) {
                         ths[1].style.width = descWidthPct + '%';
                         ths[6].style.width = noteWidthPct + '%';
+                    }
+                }
+            }
+
+
+            // Áp dụng khoảng cách footer (dt) từ URL param &dt=X (px)
+            const dtValue = await resolveFooterDistance();
+            if (dtValue) {
+                const dtPx = parseFloat(dtValue);
+                if (!isNaN(dtPx)) {
+                    const footerEl = document.getElementById('pdf-footer');
+                    if (footerEl) {
+                        // Thêm class avoid-break nếu lỡ in cắt giữa chừng (mặc dù footer đã có rồi)
+                        footerEl.style.marginTop = dtPx + 'px';
                     }
                 }
             }
