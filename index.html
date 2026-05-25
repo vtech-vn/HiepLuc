@@ -1186,7 +1186,7 @@
             if (!el) return;
             el.classList.remove('animating');
             void el.offsetWidth;
-            el.textContent = total === 0 ? '—' : formatMoney(total) + ' đ';
+            el.textContent = total === 0 ? '—' : formatMoney(total);
             el.classList.add('animating');
         }
 
@@ -1359,7 +1359,7 @@
                     monthLabel: d.format('MM/YYYY'),
                     invNo:  hd.Invoice_No  || hd.Inv_No   || hd.AR_Inv_No || '—',
                     custName: getCustomerName(hd.Customer_ID),
-                    date:   moment(hd[dateField]).format('DD/MM/YYYY'),
+                    date:   moment(hd[dateField]).locale('en').format('DD-MMM-YYYY'),
                     amount: parseFloat(hd.Amount) || 0
                 });
             });
