@@ -1286,25 +1286,11 @@
         let _drillMonthKeys = [];
 
         function openDrillPanel(sortedKeys, data, labels, selectedIndices, clickedIdx, isCash) {
-            // Decide which months to show:
-            // If nothing selected yet OR clicked month was not in selection
-            // → show only clicked month (don't alter bar selection here, that happens in refreshSelection)
-            // If months already selected → show all selected (including/excluding clicked)
-            let showKeys;
-            if (selectedIndices.size === 0 || (!selectedIndices.has(clickedIdx) && selectedIndices.size === 0)) {
-                // Just show clicked month for preview before toggle takes effect
-                showKeys = [sortedKeys[clickedIdx]];
-            } else {
-                // After the toggle in refreshSelection, the set has been updated.
-                // We compute preview using the pending state:
-                const pending = new Set(selectedIndices);
-                if (pending.has(clickedIdx)) { pending.delete(clickedIdx); } else { pending.add(clickedIdx); }
-                showKeys = pending.size > 0 ? sortedKeys.filter((_, i) => pending.has(i)) : [sortedKeys[clickedIdx]];
-            }
-            // Always just show the clicked month as primary, plus any already-selected months
-            // Simple approach: show all months that WILL be selected after the click
+            // Compute which months will be selected AFTER this click (pending state)
+            // so the panel always reflects what the user is toggling to.
             const pendingSet = new Set(selectedIndices);
             if (pendingSet.has(clickedIdx)) { pendingSet.delete(clickedIdx); } else { pendingSet.add(clickedIdx); }
+            // If pending is empty (user deselected the only selected bar), show just the clicked month
             const finalKeys = pendingSet.size > 0 ? sortedKeys.filter((_, i) => pendingSet.has(i)) : [sortedKeys[clickedIdx]];
 
             _drillIsCash = isCash;
