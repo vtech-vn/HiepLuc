@@ -134,6 +134,27 @@
         .chart-total-value.animating {
             animation: countUp 0.35s ease forwards;
         }
+        /* Selection hint */
+        .chart-select-hint {
+            font-size: 10px;
+            font-weight: 600;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            padding-left: 2px;
+            letter-spacing: 0.02em;
+            transition: opacity 0.2s;
+        }
+        .chart-select-hint.has-selection {
+            color: #113458;
+            font-weight: 700;
+        }
+        .chart-select-hint.has-selection i { color: #E21F25; }
+        .chart-select-hint.cash-hint.has-selection { color: #065f46; }
+        .chart-select-hint.cash-hint.has-selection i { color: #10b981; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -378,20 +399,22 @@
                 <div class="chart-title">
                     <div class="chart-title-left"><i class="fa-solid fa-chart-column"></i> MONTHLY SALES TREND</div>
                     <div class="chart-total-badge" title="Tổng doanh thu trong kỳ">
-                        <span class="chart-total-label">Tổng Doanh Thu</span>
+                        <span class="chart-total-label" id="sales-trend-label">Tổng Doanh Thu</span>
                         <span class="chart-total-value" id="sales-trend-total">—</span>
                     </div>
                 </div>
+                <div class="chart-select-hint" id="sales-trend-hint"><i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng</div>
                 <div class="relative h-72 w-full"><canvas id="chartTrend"></canvas></div>
             </div>
             <div class="card">
                 <div class="chart-title">
                     <div class="chart-title-left"><i class="fa-solid fa-money-bill-wave text-emerald-500"></i> CASH TREND</div>
                     <div class="chart-total-badge cash-badge" title="Tổng tiền mặt thu về trong kỳ">
-                        <span class="chart-total-label">Tổng Thu Tiền</span>
+                        <span class="chart-total-label" id="cash-trend-label">Tổng Thu Tiền</span>
                         <span class="chart-total-value" id="cash-trend-total">—</span>
                     </div>
                 </div>
+                <div class="chart-select-hint cash-hint" id="cash-trend-hint"><i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng</div>
                 <div class="relative h-72 w-full"><canvas id="chartCashTrend"></canvas></div>
             </div>
         </div>
@@ -907,83 +930,127 @@
             const el = document.getElementById(elId);
             if (!el) return;
             el.classList.remove('animating');
-            void el.offsetWidth; // force reflow to restart animation
+            void el.offsetWidth;
             el.textContent = total === 0 ? '—' : formatMoney(total) + ' đ';
             el.classList.add('animating');
         }
 
         function drawTrendChart(id, dataObj, totalElId, isCash) {
             destroyChart(id);
-            // Sort by month (YYYY-MM)
+
             const sortedKeys = Object.keys(dataObj).sort();
             const labels = sortedKeys.map(k => moment(k, 'YYYY-MM').format('MM/YYYY'));
             const data = sortedKeys.map(k => dataObj[k]);
+            const grandTotal = data.reduce((acc, v) => acc + v, 0);
 
-            // Calculate and display total
-            const total = data.reduce((acc, v) => acc + v, 0);
-            if (totalElId) updateTotalBadge(totalElId, total);
+            // Track selected bar indices for this chart
+            const selectedIndices = new Set();
+
+            const labelElId  = totalElId ? totalElId.replace('total', 'label') : null;
+            const hintElId   = totalElId ? totalElId.replace('total', 'hint')  : null;
+
+            // Badge / hint label IDs derived from totalElId:
+            //   sales-trend-total → sales-trend-label, sales-trend-hint
+            //   cash-trend-total  → cash-trend-label,  cash-trend-hint
+
+            if (totalElId) updateTotalBadge(totalElId, grandTotal);
+            if (labelElId) document.getElementById(labelElId).textContent = isCash ? 'Tổng Thu Tiền' : 'Tổng Doanh Thu';
 
             const ctx = document.getElementById(id).getContext('2d');
-            
-            // Gradient colors: blue for sales, green for cash
-            let gradientBar = ctx.createLinearGradient(0, 0, 0, 300);
-            if (isCash) {
-                gradientBar.addColorStop(0, 'rgba(16, 185, 129, 0.95)');
-                gradientBar.addColorStop(1, 'rgba(6, 95, 70, 0.55)');
-            } else {
-                gradientBar.addColorStop(0, palette.primary);
-                gradientBar.addColorStop(1, 'rgba(27, 82, 153, 0.5)');
+
+            // Color helpers
+            const colorSelected   = isCash ? 'rgba(16, 185, 129, 0.95)' : palette.primary;
+            const colorUnselected = isCash ? 'rgba(16, 185, 129, 0.28)' : 'rgba(17, 52, 88, 0.22)';
+            const tooltipBg       = isCash ? 'rgba(6, 95, 70, 0.92)'   : 'rgba(17, 52, 88, 0.92)';
+
+            function getBarColors() {
+                if (selectedIndices.size === 0) {
+                    // No selection — use original gradient
+                    const grad = ctx.createLinearGradient(0, 0, 0, 300);
+                    if (isCash) {
+                        grad.addColorStop(0, 'rgba(16, 185, 129, 0.95)');
+                        grad.addColorStop(1, 'rgba(6, 95, 70, 0.55)');
+                    } else {
+                        grad.addColorStop(0, palette.primary);
+                        grad.addColorStop(1, 'rgba(27, 82, 153, 0.5)');
+                    }
+                    return data.map(() => grad);
+                }
+                return data.map((_, i) =>
+                    selectedIndices.has(i) ? colorSelected : colorUnselected
+                );
             }
 
-            const tooltipBg = isCash ? 'rgba(6, 95, 70, 0.92)' : 'rgba(17, 52, 88, 0.92)';
-            const lineColor = isCash ? '#10b981' : '#1B5299';
+            function refreshSelection() {
+                const selTotal = selectedIndices.size === 0
+                    ? grandTotal
+                    : [...selectedIndices].reduce((s, i) => s + data[i], 0);
+
+                if (totalElId) updateTotalBadge(totalElId, selTotal);
+
+                // Update label text
+                if (labelElId) {
+                    const base = isCash ? 'Tổng Thu Tiền' : 'Tổng Doanh Thu';
+                    document.getElementById(labelElId).textContent =
+                        selectedIndices.size > 0 ? base + ' (' + selectedIndices.size + ' tháng)' : base;
+                }
+
+                // Update hint text
+                if (hintElId) {
+                    const hintEl = document.getElementById(hintElId);
+                    if (selectedIndices.size > 0) {
+                        hintEl.innerHTML = '<i class="fa-solid fa-xmark-circle"></i> Click lại cột để bỏ chọn • <b>' + selectedIndices.size + '</b> tháng đang được chọn';
+                        hintEl.classList.add('has-selection');
+                    } else {
+                        hintEl.innerHTML = '<i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng';
+                        hintEl.classList.remove('has-selection');
+                    }
+                }
+
+                // Redraw bar colors
+                charts[id].data.datasets[0].backgroundColor = getBarColors();
+                charts[id].update('none');
+            }
 
             charts[id] = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [
-                        {
-                            label: isCash ? 'Thu tiền' : 'Doanh thu',
-                            data: data,
-                            backgroundColor: gradientBar,
-                            borderRadius: {topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0},
-                            maxBarThickness: 50,
-                            order: 2
-                        },
-                        {
-                            label: 'Đường xu hướng',
-                            data: data,
-                            type: 'line',
-                            borderColor: lineColor,
-                            borderWidth: 2.5,
-                            pointBackgroundColor: lineColor,
-                            pointRadius: data.length <= 12 ? 4 : 2,
-                            pointHoverRadius: 7,
-                            tension: 0.35,
-                            fill: false,
-                            order: 1
-                        }
-                    ]
+                    datasets: [{
+                        label: isCash ? 'Thu tiền' : 'Doanh thu',
+                        data: data,
+                        backgroundColor: getBarColors(),
+                        borderRadius: {topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0},
+                        maxBarThickness: 50
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: { padding: { top: 20 } },
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: { 
+                    onClick: function(evt) {
+                        const elements = charts[id].getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+                        if (!elements.length) return;
+                        const idx = elements[0].index;
+                        if (selectedIndices.has(idx)) {
+                            selectedIndices.delete(idx);
+                        } else {
+                            selectedIndices.add(idx);
+                        }
+                        refreshSelection();
+                    },
+                    plugins: {
                         legend: { display: false },
                         tooltip: {
                             backgroundColor: tooltipBg,
                             titleFont: { size: 13 },
                             bodyFont: { size: 14, weight: 'bold' },
                             padding: 12,
-                            filter: function(item) { return item.datasetIndex === 0; },
                             callbacks: { label: function(context) { return '  ' + formatMoney(context.raw) + ' VNĐ'; } }
                         }
                     },
                     scales: {
-                        y: { 
+                        y: {
                             beginAtZero: true,
                             grid: { borderDash: [4, 4], color: '#e5e7eb', drawBorder: false },
                             ticks: { callback: function(val) { return formatShortMoney(val); }, padding: 10, font: { weight: '500' } }
