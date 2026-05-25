@@ -135,7 +135,16 @@
         .chart-total-value.animating {
             animation: countUp 0.35s ease forwards;
         }
-        /* Selection hint */
+        /* Selection hint & Drill button */
+        .chart-hint-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            padding-left: 2px;
+            min-height: 24px;
+        }
         .chart-select-hint {
             font-size: 10px;
             font-weight: 600;
@@ -143,11 +152,9 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            margin-top: -10px;
-            margin-bottom: 10px;
-            padding-left: 2px;
             letter-spacing: 0.02em;
             transition: opacity 0.2s;
+            margin: 0;
         }
         .chart-select-hint.has-selection {
             color: #113458;
@@ -156,6 +163,36 @@
         .chart-select-hint.has-selection i { color: #E21F25; }
         .chart-select-hint.cash-hint.has-selection { color: #065f46; }
         .chart-select-hint.cash-hint.has-selection i { color: #10b981; }
+
+        .btn-drill-down {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #f0f7ff;
+            color: #1B5299;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 6px;
+            border: 1px solid #bfdbfe;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(10px);
+        }
+        .btn-drill-down.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+        }
+        .btn-drill-down:hover { background: #dbeafe; border-color: #93c5fd; }
+        .cash-hint-container .btn-drill-down {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+        .cash-hint-container .btn-drill-down:hover { background: #d1fae5; border-color: #6ee7b7; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -591,7 +628,10 @@
                         <span class="chart-total-value" id="sales-trend-total">—</span>
                     </div>
                 </div>
-                <div class="chart-select-hint" id="sales-trend-hint"><i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng</div>
+                <div class="chart-hint-container">
+                    <div class="chart-select-hint" id="sales-trend-hint"><i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng</div>
+                    <button class="btn-drill-down" id="sales-trend-drill-btn"><i class="fa-solid fa-magnifying-glass"></i> Xem chi tiết</button>
+                </div>
                 <div class="relative h-72 w-full"><canvas id="chartTrend"></canvas></div>
             </div>
             <div class="card">
@@ -602,7 +642,10 @@
                         <span class="chart-total-value" id="cash-trend-total">—</span>
                     </div>
                 </div>
-                <div class="chart-select-hint cash-hint" id="cash-trend-hint"><i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng</div>
+                <div class="chart-hint-container cash-hint-container">
+                    <div class="chart-select-hint cash-hint" id="cash-trend-hint"><i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng</div>
+                    <button class="btn-drill-down" id="cash-trend-drill-btn"><i class="fa-solid fa-magnifying-glass"></i> Xem chi tiết</button>
+                </div>
                 <div class="relative h-72 w-full"><canvas id="chartCashTrend"></canvas></div>
             </div>
         </div>
@@ -1160,10 +1203,11 @@
 
             const labelElId  = totalElId ? totalElId.replace('total', 'label') : null;
             const hintElId   = totalElId ? totalElId.replace('total', 'hint')  : null;
+            const drillBtnId = totalElId ? totalElId.replace('total', 'drill-btn') : null;
 
             // Badge / hint label IDs derived from totalElId:
-            //   sales-trend-total → sales-trend-label, sales-trend-hint
-            //   cash-trend-total  → cash-trend-label,  cash-trend-hint
+            //   sales-trend-total → sales-trend-label, sales-trend-hint, sales-trend-drill-btn
+            //   cash-trend-total  → cash-trend-label,  cash-trend-hint,  cash-trend-drill-btn
 
             if (totalElId) updateTotalBadge(totalElId, grandTotal);
             if (labelElId) document.getElementById(labelElId).textContent = isCash ? 'Tổng Thu Tiền' : 'Tổng Doanh Thu';
@@ -1207,15 +1251,27 @@
                         selectedIndices.size > 0 ? base + ' (' + selectedIndices.size + ' tháng)' : base;
                 }
 
-                // Update hint text
+                // Update hint text and drill button
                 if (hintElId) {
                     const hintEl = document.getElementById(hintElId);
+                    const drillBtn = document.getElementById(drillBtnId);
                     if (selectedIndices.size > 0) {
                         hintEl.innerHTML = '<i class="fa-solid fa-xmark-circle"></i> Click lại cột để bỏ chọn • <b>' + selectedIndices.size + '</b> tháng đang được chọn';
                         hintEl.classList.add('has-selection');
+                        if (drillBtn) {
+                            drillBtn.classList.add('visible');
+                            drillBtn.onclick = () => {
+                                const selectedKeys = sortedKeys.filter((_, i) => selectedIndices.has(i));
+                                openDrillPanel(selectedKeys, isCash);
+                            };
+                        }
                     } else {
                         hintEl.innerHTML = '<i class="fa-regular fa-hand-pointer"></i> Click vào cột để tính tổng riêng';
                         hintEl.classList.remove('has-selection');
+                        if (drillBtn) {
+                            drillBtn.classList.remove('visible');
+                            drillBtn.onclick = null;
+                        }
                     }
                 }
 
@@ -1244,8 +1300,6 @@
                         const elements = charts[id].getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
                         if (!elements.length) return;
                         const idx = elements[0].index;
-                        // Open drill panel on click
-                        openDrillPanel(sortedKeys, data, labels, selectedIndices, idx, isCash);
                         if (selectedIndices.has(idx)) {
                             selectedIndices.delete(idx);
                         } else {
@@ -1285,13 +1339,8 @@
         let _drillIsCash = false;
         let _drillMonthKeys = [];
 
-        function openDrillPanel(sortedKeys, data, labels, selectedIndices, clickedIdx, isCash) {
-            // Compute which months will be selected AFTER this click (pending state)
-            // so the panel always reflects what the user is toggling to.
-            const pendingSet = new Set(selectedIndices);
-            if (pendingSet.has(clickedIdx)) { pendingSet.delete(clickedIdx); } else { pendingSet.add(clickedIdx); }
-            // If pending is empty (user deselected the only selected bar), show just the clicked month
-            const finalKeys = pendingSet.size > 0 ? sortedKeys.filter((_, i) => pendingSet.has(i)) : [sortedKeys[clickedIdx]];
+        function openDrillPanel(selectedMonthKeys, isCash) {
+            const finalKeys = selectedMonthKeys;
 
             _drillIsCash = isCash;
             _drillMonthKeys = finalKeys;
