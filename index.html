@@ -70,11 +70,70 @@
             margin-bottom: 16px; 
             display: flex; 
             align-items: center; 
+            justify-content: space-between;
             gap: 8px;
             border-bottom: 2px solid #f3f4f6;
-            padding-bottom: 8px;
+            padding-bottom: 12px;
         }
         .chart-title i { color: #E21F25; }
+        .chart-title-left { display: flex; align-items: center; gap: 8px; }
+
+        /* Chart Total Badge */
+        .chart-total-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            background: linear-gradient(135deg, #113458 0%, #1B5299 100%);
+            border-radius: 10px;
+            padding: 6px 14px;
+            box-shadow: 0 4px 12px rgba(17, 52, 88, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chart-total-badge::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+        .chart-total-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(17, 52, 88, 0.35);
+        }
+        .chart-total-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .chart-total-value {
+            font-size: 14px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1;
+            letter-spacing: -0.01em;
+        }
+        .chart-total-badge.cash-badge {
+            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28);
+        }
+        .chart-total-badge.cash-badge:hover {
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .chart-total-value.animating {
+            animation: countUp 0.35s ease forwards;
+        }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -316,11 +375,23 @@
         <!-- Charts Grid 1 -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="card">
-                <div class="chart-title"><i class="fa-solid fa-chart-column"></i> MONTHLY SALES TREND</div>
+                <div class="chart-title">
+                    <div class="chart-title-left"><i class="fa-solid fa-chart-column"></i> MONTHLY SALES TREND</div>
+                    <div class="chart-total-badge" title="Tổng doanh thu trong kỳ">
+                        <span class="chart-total-label">Tổng Doanh Thu</span>
+                        <span class="chart-total-value" id="sales-trend-total">—</span>
+                    </div>
+                </div>
                 <div class="relative h-72 w-full"><canvas id="chartTrend"></canvas></div>
             </div>
             <div class="card">
-                <div class="chart-title"><i class="fa-solid fa-money-bill-wave text-emerald-500"></i> CASH TREND</div>
+                <div class="chart-title">
+                    <div class="chart-title-left"><i class="fa-solid fa-money-bill-wave text-emerald-500"></i> CASH TREND</div>
+                    <div class="chart-total-badge cash-badge" title="Tổng tiền mặt thu về trong kỳ">
+                        <span class="chart-total-label">Tổng Thu Tiền</span>
+                        <span class="chart-total-value" id="cash-trend-total">—</span>
+                    </div>
+                </div>
                 <div class="relative h-72 w-full"><canvas id="chartCashTrend"></canvas></div>
             </div>
         </div>
@@ -736,8 +807,8 @@
             drawDoughnutChart('chartSalesByCustomer', current.salesByCust);
             drawDoughnutChart('chartPoByCustomer', current.poCountByCust);
             drawDoughnutChart('chartExpenseByAllocate', current.expByAlloc);
-            drawTrendChart('chartTrend', current.monthlySales);
-            drawTrendChart('chartCashTrend', current.monthlyCash);
+            drawTrendChart('chartTrend', current.monthlySales, 'sales-trend-total', false);
+            drawTrendChart('chartCashTrend', current.monthlyCash, 'cash-trend-total', true);
         }
 
         function destroyChart(id) {
@@ -832,43 +903,83 @@
             });
         }
 
-        function drawTrendChart(id, dataObj) {
+        function updateTotalBadge(elId, total) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            el.classList.remove('animating');
+            void el.offsetWidth; // force reflow to restart animation
+            el.textContent = total === 0 ? '—' : formatMoney(total) + ' đ';
+            el.classList.add('animating');
+        }
+
+        function drawTrendChart(id, dataObj, totalElId, isCash) {
             destroyChart(id);
             // Sort by month (YYYY-MM)
             const sortedKeys = Object.keys(dataObj).sort();
             const labels = sortedKeys.map(k => moment(k, 'YYYY-MM').format('MM/YYYY'));
             const data = sortedKeys.map(k => dataObj[k]);
 
+            // Calculate and display total
+            const total = data.reduce((acc, v) => acc + v, 0);
+            if (totalElId) updateTotalBadge(totalElId, total);
+
             const ctx = document.getElementById(id).getContext('2d');
             
-            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, palette.primary);
-            gradient.addColorStop(1, 'rgba(27, 82, 153, 0.5)'); // lighter blue transparent
+            // Gradient colors: blue for sales, green for cash
+            let gradientBar = ctx.createLinearGradient(0, 0, 0, 300);
+            if (isCash) {
+                gradientBar.addColorStop(0, 'rgba(16, 185, 129, 0.95)');
+                gradientBar.addColorStop(1, 'rgba(6, 95, 70, 0.55)');
+            } else {
+                gradientBar.addColorStop(0, palette.primary);
+                gradientBar.addColorStop(1, 'rgba(27, 82, 153, 0.5)');
+            }
+
+            const tooltipBg = isCash ? 'rgba(6, 95, 70, 0.92)' : 'rgba(17, 52, 88, 0.92)';
+            const lineColor = isCash ? '#10b981' : '#1B5299';
 
             charts[id] = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: 'Doanh thu',
-                        data: data,
-                        backgroundColor: gradient,
-                        borderRadius: {topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0},
-                        maxBarThickness: 50
-                    }]
+                    datasets: [
+                        {
+                            label: isCash ? 'Thu tiền' : 'Doanh thu',
+                            data: data,
+                            backgroundColor: gradientBar,
+                            borderRadius: {topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0},
+                            maxBarThickness: 50,
+                            order: 2
+                        },
+                        {
+                            label: 'Đường xu hướng',
+                            data: data,
+                            type: 'line',
+                            borderColor: lineColor,
+                            borderWidth: 2.5,
+                            pointBackgroundColor: lineColor,
+                            pointRadius: data.length <= 12 ? 4 : 2,
+                            pointHoverRadius: 7,
+                            tension: 0.35,
+                            fill: false,
+                            order: 1
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: { padding: { top: 20 } },
+                    interaction: { mode: 'index', intersect: false },
                     plugins: { 
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(17, 52, 88, 0.9)',
+                            backgroundColor: tooltipBg,
                             titleFont: { size: 13 },
                             bodyFont: { size: 14, weight: 'bold' },
                             padding: 12,
-                            callbacks: { label: function(context) { return formatMoney(context.raw) + ' VNĐ'; } }
+                            filter: function(item) { return item.datasetIndex === 0; },
+                            callbacks: { label: function(context) { return '  ' + formatMoney(context.raw) + ' VNĐ'; } }
                         }
                     },
                     scales: {
