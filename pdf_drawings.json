@@ -1,0 +1,1946 @@
+[
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.959999084472656, 139.94000244140625, 204.8599853515625, 153.6199951171875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.0,
+      0.2590000033378601,
+      0.41200000047683716
+    ],
+    "rect": "Rect(18.959999084472656, 139.94000244140625, 204.8599853515625, 153.6199951171875)",
+    "seqno": 0,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.4100036621094, 139.94000244140625, 575.4000244140625, 153.6199951171875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.0,
+      0.2590000033378601,
+      0.41200000047683716
+    ],
+    "rect": "Rect(270.4100036621094, 139.94000244140625, 575.4000244140625, 153.6199951171875)",
+    "seqno": 1,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.959999084472656, 203.77996826171875, 575.4000244140625, 230.65997314453125)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.0,
+      0.2590000033378601,
+      0.41200000047683716
+    ],
+    "rect": "Rect(18.959999084472656, 203.77996826171875, 575.4000244140625, 230.65997314453125)",
+    "seqno": 2,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.959999084472656, 255.97998046875, 575.4000244140625, 281.53997802734375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.9019150137901306,
+      0.9020523428916931,
+      0.9018844962120056
+    ],
+    "rect": "Rect(18.959999084472656, 255.97998046875, 575.4000244140625, 281.53997802734375)",
+    "seqno": 3,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.959999084472656, 306.88995361328125, 575.4000244140625, 332.4499816894531)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.9019150137901306,
+      0.9020523428916931,
+      0.9018844962120056
+    ],
+    "rect": "Rect(18.959999084472656, 306.88995361328125, 575.4000244140625, 332.4499816894531)",
+    "seqno": 4,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.959999084472656, 339.6499938964844, 361.8699951171875, 355.25)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.0,
+      0.2590000033378601,
+      0.41200000047683716
+    ],
+    "rect": "Rect(18.959999084472656, 339.6499938964844, 361.8699951171875, 355.25)",
+    "seqno": 5,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(72.72000122070312, 183.01995849609375, 149.3040008544922, 183.6199951171875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.20000000298023224,
+      0.40799999237060547,
+      0.5289999842643738
+    ],
+    "rect": "Rect(72.72000122070312, 183.01995849609375, 149.3040008544922, 183.6199951171875)",
+    "seqno": 9,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 139.58001708984375, 204.3800048828125, 140.29998779296875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "rect": "Rect(19.31999969482422, 139.58001708984375, 204.3800048828125, 140.29998779296875)",
+    "seqno": 133,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(574.9199829101562, 62.52001953125, 575.6400146484375, 136.55999755859375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(574.9199829101562, 62.52001953125, 575.6400146484375, 136.55999755859375)",
+    "seqno": 134,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.600000381469727, 139.58001708984375, 19.31999969482422, 153.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "rect": "Rect(18.600000381469727, 139.58001708984375, 19.31999969482422, 153.1400146484375)",
+    "seqno": 135,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 153.1400146484375, 205.10000610351562, 153.8599853515625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(19.31999969482422, 153.1400146484375, 205.10000610351562, 153.8599853515625)",
+    "seqno": 136,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 194.4200439453125, 205.10000610351562, 195.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(19.31999969482422, 194.4200439453125, 205.10000610351562, 195.1400146484375)",
+    "seqno": 137,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.600000381469727, 153.1400146484375, 19.31999969482422, 195.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(18.600000381469727, 153.1400146484375, 19.31999969482422, 195.1400146484375)",
+    "seqno": 138,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.04998779296875, 139.58001708984375, 270.7699890136719, 195.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(270.04998779296875, 139.58001708984375, 270.7699890136719, 195.1400146484375)",
+    "seqno": 139,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(428.5, 61.79998779296875, 429.2200012207031, 136.55999755859375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(428.5, 61.79998779296875, 429.2200012207031, 136.55999755859375)",
+    "seqno": 140,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(574.9199829101562, 140.29998779296875, 575.6400146484375, 195.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(574.9199829101562, 140.29998779296875, 575.6400146484375, 195.1400146484375)",
+    "seqno": 141,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.600000381469727, 203.41998291015625, 19.31999969482422, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(18.600000381469727, 203.41998291015625, 19.31999969482422, 230.89996337890625)",
+    "seqno": 142,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 230.17999267578125, 42.36000061035156, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(19.31999969482422, 230.17999267578125, 42.36000061035156, 230.89996337890625)",
+    "seqno": 143,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(42.36000061035156, 204.13995361328125, 43.08000183105469, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(42.36000061035156, 204.13995361328125, 43.08000183105469, 230.89996337890625)",
+    "seqno": 144,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(43.08000183105469, 230.17999267578125, 270.04998779296875, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(43.08000183105469, 230.17999267578125, 270.04998779296875, 230.89996337890625)",
+    "seqno": 145,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.04998779296875, 204.13995361328125, 270.7699890136719, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(270.04998779296875, 204.13995361328125, 270.7699890136719, 230.89996337890625)",
+    "seqno": 146,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.7699890136719, 230.17999267578125, 307.25, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(270.7699890136719, 230.17999267578125, 307.25, 230.89996337890625)",
+    "seqno": 147,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(307.25, 204.13995361328125, 307.9700012207031, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(307.25, 204.13995361328125, 307.9700012207031, 230.89996337890625)",
+    "seqno": 148,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(307.9700012207031, 230.17999267578125, 361.3940124511719, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(307.9700012207031, 230.17999267578125, 361.3940124511719, 230.89996337890625)",
+    "seqno": 149,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(361.3900146484375, 204.13995361328125, 362.1100158691406, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(361.3900146484375, 204.13995361328125, 362.1100158691406, 230.89996337890625)",
+    "seqno": 150,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(362.1099853515625, 230.17999267578125, 428.4939880371094, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(362.1099853515625, 230.17999267578125, 428.4939880371094, 230.89996337890625)",
+    "seqno": 151,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(428.5, 204.13995361328125, 429.2200012207031, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(428.5, 204.13995361328125, 429.2200012207031, 230.89996337890625)",
+    "seqno": 152,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 230.17999267578125, 501.4599914550781, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(429.2200012207031, 230.17999267578125, 501.4599914550781, 230.89996337890625)",
+    "seqno": 153,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(501.4599914550781, 204.13995361328125, 502.17999267578125, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(501.4599914550781, 204.13995361328125, 502.17999267578125, 230.89996337890625)",
+    "seqno": 154,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(574.9199829101562, 204.13995361328125, 575.6400146484375, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(574.9199829101562, 204.13995361328125, 575.6400146484375, 230.89996337890625)",
+    "seqno": 155,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.600000381469727, 230.90997314453125, 19.31999969482422, 331.9700012207031)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(18.600000381469727, 230.90997314453125, 19.31999969482422, 331.9700012207031)",
+    "seqno": 156,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(574.9199829101562, 230.90997314453125, 575.6400146484375, 331.9700012207031)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(574.9199829101562, 230.90997314453125, 575.6400146484375, 331.9700012207031)",
+    "seqno": 157,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(361.3900146484375, 230.90997314453125, 362.1100158691406, 332.69000244140625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(361.3900146484375, 230.90997314453125, 362.1100158691406, 332.69000244140625)",
+    "seqno": 158,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 339.28997802734375, 362.1100158691406, 340.0099792480469)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(19.31999969482422, 339.28997802734375, 362.1100158691406, 340.0099792480469)",
+    "seqno": 159,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(501.4599914550781, 230.90997314453125, 502.17999267578125, 332.69000244140625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(501.4599914550781, 230.90997314453125, 502.17999267578125, 332.69000244140625)",
+    "seqno": 160,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 385.72998046875, 362.1100158691406, 386.4499816894531)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(19.31999969482422, 385.72998046875, 362.1100158691406, 386.4499816894531)",
+    "seqno": 161,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(361.3900146484375, 340.0099792480469, 362.1100158691406, 386.4499816894531)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(361.3900146484375, 340.0099792480469, 362.1100158691406, 386.4499816894531)",
+    "seqno": 162,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(428.5, 230.90997314453125, 429.2200012207031, 332.69000244140625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(428.5, 230.90997314453125, 429.2200012207031, 332.69000244140625)",
+    "seqno": 163,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(574.9199829101562, 331.969970703125, 575.6400146484375, 386.4499816894531)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(574.9199829101562, 331.969970703125, 575.6400146484375, 386.4499816894531)",
+    "seqno": 164,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(428.5, 437.22998046875, 429.2200012207031, 484.3899841308594)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(428.5, 437.22998046875, 429.2200012207031, 484.3899841308594)",
+    "seqno": 165,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(574.9199829101562, 437.22998046875, 575.6400146484375, 484.3899841308594)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(574.9199829101562, 437.22998046875, 575.6400146484375, 484.3899841308594)",
+    "seqno": 166,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(18.600000381469727, 331.969970703125, 19.31999969482422, 386.4499816894531)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(18.600000381469727, 331.969970703125, 19.31999969482422, 386.4499816894531)",
+    "seqno": 167,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(204.3800048828125, 139.58001708984375, 205.10000610351562, 195.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(204.3800048828125, 139.58001708984375, 205.10000610351562, 195.1400146484375)",
+    "seqno": 168,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.04998779296875, 230.90997314453125, 270.7699890136719, 332.69000244140625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(270.04998779296875, 230.90997314453125, 270.7699890136719, 332.69000244140625)",
+    "seqno": 169,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(42.36000061035156, 230.90997314453125, 43.08000183105469, 332.69000244140625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(42.36000061035156, 230.90997314453125, 43.08000183105469, 332.69000244140625)",
+    "seqno": 170,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(307.25, 230.90997314453125, 307.9700012207031, 332.69000244140625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(307.25, 230.90997314453125, 307.9700012207031, 332.69000244140625)",
+    "seqno": 171,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(361.3900146484375, 436.5099792480469, 362.1100158691406, 484.3899841308594)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(361.3900146484375, 436.5099792480469, 362.1100158691406, 484.3899841308594)",
+    "seqno": 172,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(501.4599914550781, 339.28997802734375, 502.17999267578125, 386.4499816894531)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(501.4599914550781, 339.28997802734375, 502.17999267578125, 386.4499816894531)",
+    "seqno": 173,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 61.800048828125, 575.6400146484375, 62.52001953125)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 61.800048828125, 575.6400146484375, 62.52001953125)",
+    "seqno": 174,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 73.20001220703125, 575.6400146484375, 73.91998291015625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 73.20001220703125, 575.6400146484375, 73.91998291015625)",
+    "seqno": 175,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 83.6400146484375, 575.6400146484375, 84.3599853515625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 83.6400146484375, 575.6400146484375, 84.3599853515625)",
+    "seqno": 176,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 94.08001708984375, 575.6400146484375, 94.79998779296875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 94.08001708984375, 575.6400146484375, 94.79998779296875)",
+    "seqno": 177,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 104.52001953125, 575.6400146484375, 105.239990234375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 104.52001953125, 575.6400146484375, 105.239990234375)",
+    "seqno": 178,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 114.96002197265625, 575.6400146484375, 115.67999267578125)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 114.96002197265625, 575.6400146484375, 115.67999267578125)",
+    "seqno": 179,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 125.4000244140625, 575.6400146484375, 126.1199951171875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 125.4000244140625, 575.6400146484375, 126.1199951171875)",
+    "seqno": 180,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(429.2200012207031, 135.84002685546875, 575.6400146484375, 136.55999755859375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(429.2200012207031, 135.84002685546875, 575.6400146484375, 136.55999755859375)",
+    "seqno": 181,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.7699890136719, 139.58001708984375, 575.6400146484375, 140.29998779296875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(270.7699890136719, 139.58001708984375, 575.6400146484375, 140.29998779296875)",
+    "seqno": 182,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.7699890136719, 153.1400146484375, 575.6400146484375, 153.8599853515625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(270.7699890136719, 153.1400146484375, 575.6400146484375, 153.8599853515625)",
+    "seqno": 183,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(270.7699890136719, 194.4200439453125, 575.6400146484375, 195.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(270.7699890136719, 194.4200439453125, 575.6400146484375, 195.1400146484375)",
+    "seqno": 184,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 203.4200439453125, 575.6400146484375, 204.1400146484375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.5019454956054688,
+      0.502021849155426,
+      0.5019302368164062
+    ],
+    "rect": "Rect(19.31999969482422, 203.4200439453125, 575.6400146484375, 204.1400146484375)",
+    "seqno": 185,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(502.17999267578125, 230.17999267578125, 574.9240112304688, 230.89996337890625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(502.17999267578125, 230.17999267578125, 574.9240112304688, 230.89996337890625)",
+    "seqno": 186,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 255.6199951171875, 575.6400146484375, 256.3399658203125)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(19.31999969482422, 255.6199951171875, 575.6400146484375, 256.3399658203125)",
+    "seqno": 187,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 281.05999755859375, 575.6400146484375, 281.77996826171875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(19.31999969482422, 281.05999755859375, 575.6400146484375, 281.77996826171875)",
+    "seqno": 188,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 306.530029296875, 575.6400146484375, 307.25)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(19.31999969482422, 306.530029296875, 575.6400146484375, 307.25)",
+    "seqno": 189,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(19.31999969482422, 331.97003173828125, 574.9199829101562, 332.69000244140625)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.7489280700683594,
+      0.7490196228027344,
+      0.7488975524902344
+    ],
+    "rect": "Rect(19.31999969482422, 331.97003173828125, 574.9199829101562, 332.69000244140625)",
+    "seqno": 190,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(502.17999267578125, 339.28997802734375, 575.6439819335938, 340.0099792480469)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(502.17999267578125, 339.28997802734375, 575.6439819335938, 340.0099792480469)",
+    "seqno": 191,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(502.17999267578125, 354.7699890136719, 575.6439819335938, 355.489990234375)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(502.17999267578125, 354.7699890136719, 575.6439819335938, 355.489990234375)",
+    "seqno": 192,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(502.17999267578125, 370.25, 575.6439819335938, 370.9700012207031)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(502.17999267578125, 370.25, 575.6439819335938, 370.9700012207031)",
+    "seqno": 193,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(502.17999267578125, 385.72998046875, 575.6439819335938, 386.4499816894531)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(502.17999267578125, 385.72998046875, 575.6439819335938, 386.4499816894531)",
+    "seqno": 194,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(362.1099853515625, 436.5099792480469, 575.6400146484375, 437.22998046875)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(362.1099853515625, 436.5099792480469, 575.6400146484375, 437.22998046875)",
+    "seqno": 195,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(362.1099853515625, 458.7099914550781, 575.6400146484375, 459.42999267578125)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(362.1099853515625, 458.7099914550781, 575.6400146484375, 459.42999267578125)",
+    "seqno": 196,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  },
+  {
+    "items": [
+      [
+        "re",
+        "Rect(362.1099853515625, 483.66998291015625, 575.6400146484375, 484.3899841308594)",
+        1
+      ]
+    ],
+    "type": "f",
+    "even_odd": true,
+    "fill_opacity": 1.0,
+    "fill": [
+      0.6979171633720398,
+      0.6980392336845398,
+      0.6979019045829773
+    ],
+    "rect": "Rect(362.1099853515625, 483.66998291015625, 575.6400146484375, 484.3899841308594)",
+    "seqno": 197,
+    "layer": "",
+    "closePath": null,
+    "color": null,
+    "width": null,
+    "lineCap": null,
+    "lineJoin": null,
+    "dashes": null,
+    "stroke_opacity": null
+  }
+]
