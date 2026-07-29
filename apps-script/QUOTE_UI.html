@@ -605,12 +605,13 @@ function convertLogoToBase64() {
             });
 
             // 2. Render HTML theo từng nhóm
-            let itemIndex = 1;
-            groups.forEach((g) => {
+            groups.forEach((g, groupIndex) => {
+                let itemIndex = 1;
                 // In dòng header group nếu có tên nhóm
                 if (g.groupName) {
+                    const groupPrefix = String.fromCharCode(65 + groupIndex) + ". ";
                     tbody.innerHTML += `<tr style="background-color: #EDF2F7; font-weight: 700; color: #113458; font-size: 13.5px;">
-                        <td colspan="4" style="text-align: left; padding-left: 15px; color: #113458;">${g.groupName}</td>
+                        <td colspan="4" style="text-align: left; padding-left: 15px; color: #113458;">${groupPrefix}${g.groupName}</td>
                         <td style="color: #113458;"></td>
                         <td style="color: #113458; text-align: right; padding-right: 10px;">${g.sumAmount ? formatCurrency(g.sumAmount) : ''}</td>
                         <td style="color: #113458;"></td>
