@@ -758,7 +758,9 @@ function handleLogoError(imgEl) {
                     let amount = parseFloat(line['Amount']) || (qty * price);
                     let uomVal = line['UOM'] || '';
 
-                    tbody.innerHTML += `<tr><td style="font-weight: bold;">${itemIndex++}</td><td style="text-align: left;">${line['Description'] || ''}</td><td>${uomVal}</td><td style="font-weight: bold;">${qty}</td><td>${price ? formatCurrency(price) : ''}</td><td>${formatCurrency(amount)}</td><td style="text-align:left; font-size:11px; color:#555;">${line['Note'] || ''}</td></tr>`;
+                    let desc = (line['Description'] || '').toString().replace(/\n/g, '<br>');
+                    let note = (line['Note'] || '').toString().replace(/\n/g, '<br>');
+                    tbody.innerHTML += `<tr><td style="font-weight: bold;">${itemIndex++}</td><td style="text-align: left;">${desc}</td><td>${uomVal}</td><td style="font-weight: bold;">${qty}</td><td>${price ? formatCurrency(price) : ''}</td><td>${formatCurrency(amount)}</td><td style="text-align:left; font-size:11px; color:#555;">${note}</td></tr>`;
                 });
             });
         }
